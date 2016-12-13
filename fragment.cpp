@@ -41,30 +41,14 @@ namespace model
 		* углов и двух случайных чисел, генерирую равномерное 
 		* распределение косинуса третьего угла
 		*/
-		double b = y1 > 0.5 ? y2 : -y2;
-		double sqrtb = sqrt(1.0 - b * b);
+		double cb = y1 > 0.5 ? y2 : -y2;
+		double sb = sqrt(1.0 - cb * cb);
 
 		double sa = sin(a);
 		double sg = sin(g);
 		double ca = cos(a);
 		double cg = cos(g);
 
-		o.C[0][0] = ca * cg - sa * b * sg;
-		o.C[0][1] = -ca * sg - sa * b * cg;
-		o.C[0][2] = sa * sqrtb;
-
-		o.C[1][0] = sa * cg + ca * b * sg;
-		o.C[1][1] = -sa * sg + ca * b * cg;
-		o.C[1][2] = -ca * sqrtb;
-
-		o.C[2][0] = sqrtb * sg;
-		o.C[2][1] = sqrtb * cg;
-		o.C[2][2] = b;
-
-		/*
-		//Просто равномерное распределение всех углов
-		double cb = cos(b);
-		double sb = sin(b);
 		o.C[0][0] = ca * cg - sa * cb * sg;
 		o.C[0][1] = -ca * sg - sa * cb * cg;
 		o.C[0][2] = sa * sb;
@@ -76,7 +60,6 @@ namespace model
 		o.C[2][0] = sb * sg;
 		o.C[2][1] = sb * cg;
 		o.C[2][2] = cb;
-		*/
 
 	}
 
@@ -296,53 +279,50 @@ namespace model
 			{
 				SS[i].tc = TITAN_TC3;
 			}
-		
-			
-			const double a = 1.0;
-			const double c = 1.587;
-#define COS60 0.5
-#define COS30 0.86603
-			SS[0].Initialize(0, 0, 1, 0, 1, 0);// плоскость {0001}
-			SS[1].Initialize(0, 0, 1, 0, -1, 0);
-			SS[2].Initialize(0, 0, 1, -SQRT3*a, 1, 0);
-			SS[3].Initialize(0, 0, 1, -SQRT3*a, -1, 0);
-			SS[4].Initialize(0, 0, 1, SQRT3*a, -1, 0);
-			SS[5].Initialize(0, 0, 1, SQRT3*a, 1, 0);//Во всех этих не было a
+				
+			const double c = TITAN_C;
+			//Базисное скольжение
+			SS[0].Initialize(0, 0, 0, 1, 1, 1, -2, 0, c);// {0001} <11-20> 
+			SS[1].Initialize(0, 0, 0, 1, -1, -1, 2, 0, c);
+			SS[2].Initialize(0, 0, 0, 1, -2, 1, 1, 0, c);
+			SS[3].Initialize(0, 0, 0, 1, 2, -1, -1, 0, c);
+			SS[4].Initialize(0, 0, 0, 1, 1, -2, 1, 0, c);
+			SS[5].Initialize(0, 0, 0, 1, -1, 2, -1, 0, c);
+			//Призматическое скольжение
+			SS[6].Initialize(1, -1, 0, 0, 1, 1, -2, 0, c);// {10-10} <11-20>
+			SS[7].Initialize(1, -1, 0, 0, -1, -1, 2, 0, c);
+			SS[8].Initialize(0, -1, 1, 0, -2, 1, 1, 0, c);
+			SS[9].Initialize(0, -1, 1, 0, 2, -1, -1, 0, c);
+			SS[10].Initialize(-1, 0, 1, 0, 1, -2, 1, 0, c);
+			SS[11].Initialize(-1, 0, 1, 0, -1, 2, -1, 0, c);
+			//Пирамидальное скольжение <a>
+			SS[12].Initialize(1, -1, 0, 1, 1, 1, -2, 0, c);// {10-11} <11-20>
+			SS[13].Initialize(1, -1, 0, 1, -1, -1, 2, 0, c);
+			SS[14].Initialize(0, -1, 1, 1, -2, 1, 1, 0, c);
+			SS[15].Initialize(0, -1, 1, 1, 2, -1, -1, 0, c);
+			SS[16].Initialize(-1, 0, 1, 1, 1, -2, 1, 0, c);
+			SS[17].Initialize(-1, 0, 1, 1, -1, 2, -1, 0, c);
+			//Пирамидальное скольжение <a + c>
+			SS[18].Initialize(1, -1, 0, 0, 1, 1, -2, 3, c);// {10-10} <11-23>
+			SS[19].Initialize(1, -1, 0, 0, -1, -1, 2, 3, c);
+			SS[20].Initialize(0, -1, 1, 0, -2, 1, 1, 3, c);
+			SS[21].Initialize(0, -1, 1, 0, 2, -1, -1, 3, c);
+			SS[22].Initialize(-1, 0, 1, 0, 1, -2, 1, 3, c);
+			SS[23].Initialize(-1, 0, 1, 0, -1, 2, -1, 3, c);
 
-			SS[6].Initialize(1, 0, 0, 0, 0, 1);// призматическое, плоскость {10-10}
-			SS[7].Initialize(1, 0, 0, 0, 0, -1);
-			SS[8].Initialize(1, 0, 0, 0, a, c);
-			SS[9].Initialize(1, 0, 0, 0, -a, -c);
-			SS[10].Initialize(1, 0, 0, 0, -a, c);
-			SS[11].Initialize(1, 0, 0, 0, a, -c);
+			SS[24].Initialize(1, -2, 1, 1, 1, 1, -2, 3, c);// {11-21} <11-23>
+			SS[25].Initialize(1, -2, 1, 1, -1, -1, 2, 3, c);
+			SS[26].Initialize(1, 1, -2, 1, -2, 1, 1, 3, c);
+			SS[27].Initialize(1, 1, -2, 1, 2, -1, -1, 3, c);
+			SS[28].Initialize(-2, 1, 1, 1, 1, -2, 1, 3, c);
+			SS[29].Initialize(-2, 1, 1, 1, -1, 2, -1, 3, c);
 
-			SS[12].Initialize(2.0 * c, 0, SQRT3 * a, 0, 1, 0);// пирамидальное, плоскость {10-11}
-			SS[13].Initialize(2.0 * c, 0, SQRT3 * a, 0, -1, 0);
-			SS[14].Initialize(2.0 * c, 0, SQRT3 * a, -a * SQRT3_2, a / 2.0, c);
-			SS[15].Initialize(2.0 * c, 0, SQRT3 * a, a * SQRT3_2, -a / 2.0, -c);
-			SS[16].Initialize(2.0 * c, 0, SQRT3 * a, -a * SQRT3_2, -a / 2.0, -c);
-			SS[17].Initialize(2.0 * c, 0, SQRT3 * a, a * SQRT3_2, a / 2.0, c);
-
-			SS[18].Initialize(c, 0, SQRT3 * a, 0, 1, 0);// плоскость {10-12}
-			SS[19].Initialize(c, 0, SQRT3 * a, 0, -1, 0);
-			SS[20].Initialize(c, 0, SQRT3 * a, -a * SQRT3, a, c);
-			SS[21].Initialize(c, 0, SQRT3 * a, a * SQRT3, -a, -c);
-			SS[22].Initialize(c, 0, SQRT3 * a, -a * SQRT3, -a, c);
-			SS[23].Initialize(c, 0, SQRT3 * a, a * SQRT3, a, -c);
-
-			SS[24].Initialize(3.0 * c, SQRT3 * c, SQRT3 * a, SQRT3, 1, 0);// плоскость {11-21}
-			SS[25].Initialize(3.0 * c, SQRT3 * c, SQRT3 * a, -SQRT3, -1, 0);
-			SS[26].Initialize(3.0 * c, SQRT3 * c, SQRT3 * a, -a * SQRT3_2, a / 2.0, c);
-			SS[27].Initialize(3.0 * c, SQRT3 * c, SQRT3 * a, a * SQRT3_2, -a / 2.0, -c);
-			SS[28].Initialize(3.0 * c, SQRT3 * c, SQRT3 * a, 0, -1, c);
-			SS[29].Initialize(3.0 * c, SQRT3 * c, SQRT3 * a, 0, 1, -c);
-
-			SS[30].Initialize(c * SQRT3_2, c / 2.0, a, SQRT3, 1, 0);// плоскость {11-22}
-			SS[31].Initialize(c * SQRT3_2, c / 2.0, a, -SQRT3, -1, 0);
-			SS[32].Initialize(c * SQRT3_2, c / 2.0, a, -SQRT3 * a, a, c);
-			SS[33].Initialize(c * SQRT3_2, c / 2.0, a, SQRT3 * a, -a, -c);
-			SS[34].Initialize(c * SQRT3_2, c / 2.0, a, 0, -2 * a, c);
-			SS[35].Initialize(c * SQRT3_2, c / 2.0, a, 0, 2 * a, -c);
+			SS[24].Initialize(1, -2, 1, 2, 1, 1, -2, 3, c);// {11-22} <11-23>
+			SS[25].Initialize(1, -2, 1, 2, -1, -1, 2, 3, c);
+			SS[26].Initialize(1, 1, -2, 2, -2, 1, 1, 3, c);
+			SS[27].Initialize(1, 1, -2, 2, 2, -1, -1, 3, c);
+			SS[28].Initialize(-2, 1, 1, 2, 1, -2, 1, 3, c);
+			SS[29].Initialize(-2, 1, 1, 2, -1, 2, -1, 3, c);
 			break;
 		}
 		
@@ -363,13 +343,18 @@ namespace model
 		else if (material == 2)//ГПУ, альфа-титан
 		{
 			p.C[2][2][2][2] = TITAN_P1;
+
 			p.C[0][0][0][0] = p.C[1][1][1][1] = TITAN_P2;
-			p.C[2][2][1][1] = p.C[1][1][2][2] = p.C[2][2][0][0] = p.C[0][0][2][2] = TITAN_P3;
-			p.C[0][0][1][1] = p.C[1][1][0][0] = p.C[0][1][1][0] =
-				p.C[1][2][1][2] = p.C[0][1][0][1] =	p.C[1][0][1][0] = p.C[1][0][0][1] = TITAN_P4;
-			p.C[0][2][2][0] = p.C[0][2][0][2] = p.C[1][2][2][1] =
-				p.C[1][2][1][2] = p.C[2][0][0][2] = p.C[2][0][2][0] =
-				p.C[2][1][1][2] = p.C[2][1][2][1] = TITAN_P5;
+			
+			p.C[0][0][1][1] = p.C[1][1][0][0] = TITAN_P4;
+
+			p.C[0][0][2][2] = p.C[2][2][0][0] = p.C[1][1][2][2] = p.C[2][2][1][1] = TITAN_P3;
+
+			p.C[1][2][1][2] = p.C[2][1][1][2] = p.C[1][2][2][1] = p.C[2][1][2][1] =
+				p.C[2][0][2][0] = p.C[2][0][0][2] = p.C[0][2][0][2] = p.C[0][2][2][0] = TITAN_P5;
+
+			p.C[0][1][1][0] = p.C[1][0][1][0] = p.C[1][0][0][1] = p.C[0][1][0][1] = TITAN_P6;
+			
 		}
 	}
 
