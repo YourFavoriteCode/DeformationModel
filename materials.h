@@ -45,11 +45,14 @@ namespace model
 	const double TITAN_TC2 = 3e7;
 	const double TITAN_TC3 = 12e7;
 
-	const double TITAN_P1 = 18.07e10;
-	const double TITAN_P2 = 16.24e10;
+	const double TITAN_P1 = 1.807e11;
+	const double TITAN_P2 = 1.624e11;
 	const double TITAN_P3 = 6.9e10;
 	const double TITAN_P4 = 9.2e10;
 	const double TITAN_P5 = 4.67e10;
+	const double TITAN_P6 = 3.5e9;
+
+	const double TITAN_C = 1.587;
 
 }
 
