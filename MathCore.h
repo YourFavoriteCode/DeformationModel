@@ -105,7 +105,7 @@ namespace model
 		void Initialize(float, float, float,
 			float, float, float);	//Инициализация значений
 		void Initialize(float, float, float, float,
-			float, float, float, float);
+			float, float, float, float, float);
 		
 		SlipSystem();
 		~SlipSystem();

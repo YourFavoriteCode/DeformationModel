@@ -400,6 +400,9 @@ namespace model
 	void SlipSystem::Initialize(float nx, float ny,
 		float nz, float bx, float by, float bz)
 	{
+		/*
+		Инициализация трёхиндексовых СС
+		*/
 		n.set(nx, ny, nz);
 		b.set(bx, by, bz);
 		
@@ -408,17 +411,17 @@ namespace model
 	}
 
 	void SlipSystem::Initialize(float nx1, float nx2,float nx3, float nx4,
-		float bx1, float bx2, float bx3, float bx4)
+		float bx1, float bx2, float bx3, float bx4, float c)
 	{
-		double u = (2 * nx1 + nx2) / 3.0;
-		double v = (nx1 + 2 * nx2) / 3.0;
-		double w = nx4 / 3.0;
-		n.set(u, v, w);
+		/*
+		Инициализация четырёхиндексовых СС
+		*/
+		n.set(nx1, nx2, nx4*c);
 
-		u = (2 * bx1 + bx2) / 3.0;
-		v = (bx1 + 2 * bx2) / 3.0;
-		w = bx4 / 3.0;
-		b.set(u, v, w);
+		double u = (2.0 * bx1 + bx2) / 3.0;
+		double v = (bx1 + 2.0 * bx2) / 3.0;
+		double w = bx4 / 3.0;
+		b.set(u, v, w*c);
 
 		n.Normalize();
 		b.Normalize();
