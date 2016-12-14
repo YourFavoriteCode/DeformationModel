@@ -317,12 +317,12 @@ namespace model
 			SS[28].Initialize(-2, 1, 1, 1, 1, -2, 1, 3, c);
 			SS[29].Initialize(-2, 1, 1, 1, -1, 2, -1, 3, c);
 
-			SS[24].Initialize(1, -2, 1, 2, 1, 1, -2, 3, c);// {11-22} <11-23>
-			SS[25].Initialize(1, -2, 1, 2, -1, -1, 2, 3, c);
-			SS[26].Initialize(1, 1, -2, 2, -2, 1, 1, 3, c);
-			SS[27].Initialize(1, 1, -2, 2, 2, -1, -1, 3, c);
-			SS[28].Initialize(-2, 1, 1, 2, 1, -2, 1, 3, c);
-			SS[29].Initialize(-2, 1, 1, 2, -1, 2, -1, 3, c);
+			SS[30].Initialize(1, -2, 1, 2, 1, 1, -2, 3, c);// {11-22} <11-23>
+			SS[31].Initialize(1, -2, 1, 2, -1, -1, 2, 3, c);
+			SS[32].Initialize(1, 1, -2, 2, -2, 1, 1, 3, c);
+			SS[33].Initialize(1, 1, -2, 2, 2, -1, -1, 3, c);
+			SS[34].Initialize(-2, 1, 1, 2, 1, -2, 1, 3, c);
+			SS[35].Initialize(-2, 1, 1, 2, -1, 2, -1, 3, c);
 			break;
 		}
 		
