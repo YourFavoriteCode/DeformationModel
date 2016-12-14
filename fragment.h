@@ -59,7 +59,7 @@ namespace model
 		void Orientate(double, double,
 			double, double);			//Задание начальной ориентации
 		void NDScalc();					//Вычисление НДС фрагмента
-		void Rotate(double, Vector);	//Поворот решётки
+		//void Rotate(double, Vector);	//Поворот решётки
 
 		Fragment();
 		~Fragment();

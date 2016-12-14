@@ -484,35 +484,6 @@ namespace model
 		stress = SQRT3_2 * sqrt(stress);
 	}
 
-	void Fragment::Rotate(double dFi, const Vector a)
-	{
-		/*
-		* Поворот решётки фрагмента вокруг
-		* Заданной оси на заданный угол
-		*/
-		double CosFi = cos(dFi);
-		double SinFiX = sin(dFi)*a.C[0];
-		double SinFiY = sin(dFi)*a.C[1];
-		double SinFiZ = sin(dFi)*a.C[2];
-		double COS = (1.0 - CosFi);
-		
-		Tensor dO;			//Тензор поворота на шаге
-
-		dO.C[0][0] = CosFi + COS * a.C[0] * a.C[0];
-		dO.C[0][1] = COS * a.C[0]*a.C[1] - SinFiZ;
-		dO.C[0][2] = COS * a.C[0] * a.C[2] + SinFiY;
-
-		dO.C[1][0] = COS * a.C[0] * a.C[1] + SinFiZ;
-		dO.C[1][1] = CosFi + COS * a.C[1] * a.C[1];
-		dO.C[1][2] = COS * a.C[1] * a.C[2] - SinFiX;
-
-		dO.C[2][0] = COS * a.C[0] * a.C[2] - SinFiY;
-		dO.C[2][1] = COS * a.C[1] * a.C[2] + SinFiX;
-		dO.C[2][2] = CosFi + COS * a.C[2] * a.C[2];
-
-		Tensor buf = dO*o;
-		o = buf;
-
-	}
+	
 
 }
