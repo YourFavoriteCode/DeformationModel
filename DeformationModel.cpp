@@ -202,6 +202,11 @@ int _tmain(int argc, _TCHAR* argv[])
 					PC[q1][q2][q3].size = LogNormalDistrib(fragm_size_m, fragm_size_dsp);
 					break;
 				}
+				case 3://Показательное
+				{
+					PC[q1][q2][q3].size = ExpDistrib(fragm_size_m);//Только один параметр
+					break;
+				}
 				}
 				PC[q1][q2][q3].volume = pow(PC[q1][q2][q3].size, 3);
 				PC[q1][q2][q3].surrounds = new Fragment[surround_count];
