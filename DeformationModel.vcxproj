@@ -164,6 +164,7 @@
   <ItemGroup>
     <ClInclude Include="distributions.h" />
     <ClInclude Include="fragment.h" />
+    <ClInclude Include="Fragmentation.h" />
     <ClInclude Include="functions.h" />
     <ClInclude Include="hardening.h" />
     <ClInclude Include="materials.h" />
@@ -180,6 +181,7 @@
     <ClCompile Include="DeformationModel.cpp" />
     <ClCompile Include="distributions.cpp" />
     <ClCompile Include="fragment.cpp" />
+    <ClCompile Include="fragmentation.cpp" />
     <ClCompile Include="functions.cpp" />
     <ClCompile Include="hardening.cpp" />
     <ClCompile Include="MathCore.cpp" />

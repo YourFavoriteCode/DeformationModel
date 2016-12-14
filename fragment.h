@@ -37,8 +37,11 @@ namespace model
 		Fragment *surrounds;			//Ссылки на граничащие фрагменты
 		Vector *normals;				//Вектора нормали к граничащим фрагментам
 		Vector moment;				
-		Vector *moments;					//Поверхностные моменты на гранях
+		Vector *moments;				//Поверхностные моменты на гранях
 		int *contact;					
+
+		int position;					//Порядковый номер данного элемента в поликристалле
+
 		/*
 		contact - массив с информацией о том, как соприкасаются фрагменты
 		возможные значения:
@@ -59,8 +62,7 @@ namespace model
 		void Orientate(double, double,
 			double, double);			//Задание начальной ориентации
 		void NDScalc();					//Вычисление НДС фрагмента
-		//void Rotate(double, Vector);	//Поворот решётки
-
+		
 		Fragment();
 		~Fragment();
 

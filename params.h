@@ -73,9 +73,14 @@ namespace model
 	extern double HARD_BASE_PSI;			//Параметр пси
 	extern double HARD_BASE_A;				//Парметр А
 	
+	/********************************************************
+	***********			Фрагментация		*****************
+	********************************************************/
 
-	int ReadParams(const char *);			//Считывание параметров из файла (Beta)
-	
+	extern bool FRAGMENTATION;
+
+	int ReadParams(const char *);			//Считывание параметров из файла
+
 }
 
 #endif __PARAMS_H

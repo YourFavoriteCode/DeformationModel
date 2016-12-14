@@ -16,6 +16,7 @@
 #include "functions.h"
 #include "tension.h"
 #include "distributions.h"
+#include "Fragmentation.h"
 
 using namespace model;
 
@@ -169,8 +170,11 @@ int _tmain(int argc, _TCHAR* argv[])
 				{
 					PC[q1][q2][q3].setMaterialParams(another_material);
 				}
+				
 				PC[q1][q2][q3].mc = ROT_MC;//Раздача начальных критических моментов
 
+				PC[q1][q2][q3].position = get1DPos(q1, q2, q3);//Получение порядкового номера
+				
 				if (RAND_ORIENT)//Случайный равномерный закон
 				{
 
@@ -1254,6 +1258,66 @@ int _tmain(int argc, _TCHAR* argv[])
 			macro_D.C[0][0] = pow(-1, cycle + 1) * tension_component;	//Меняем знак растягивающей компоненты
 			strain_max += strain_max * addition_strain;					//Повышаем предел интенсивности
 		}
+
+		/****************************************************************************************************
+		*****************					    Фрагментация и дробление					*****************
+		*****************************************************************************************************/
+
+		if (FRAGMENTATION)
+		{
+			float** sm_matrix = new float*[total_fragm_count];			//Матрица смежности
+			for (int i = 0; i < total_fragm_count; i++)
+			{
+				sm_matrix[i] = new float[total_fragm_count];
+			}
+			for (int i = 0; i < total_fragm_count; i++)
+			{
+				for (int j = 0; j < total_fragm_count; j++)
+				{
+					sm_matrix[i][j] = 0;
+				}
+			}
+			for (int q1 = 0; q1 < fragm_count; q1++)
+			{
+				for (int q2 = 0; q2 < fragm_count; q2++)
+				{
+					for (int q3 = 0; q3 < fragm_count; q3++)
+					{
+						int pos1 = get1DPos(q1, q2, q3);				//Позиция первого элемента
+						
+						for (int h = 0; h < surround_count; h++)
+						{
+							int pos2 = PC[q1][q2][q3].surrounds[h].position;//Позиция второго элемента
+							//if (pos2 < pos1) continue;			//Раз матрица диагональная - нижнюю половину не нужно отдельно считать
+							/*if (PC[q1][q2][q3].contact[h] == 0)
+							{
+								sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = -1;//Если фрагменты не контактируют
+								continue;
+							}
+							else if (sm_matrix[pos1][pos2]==0)//Если ещё не прошли
+							{
+								sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = (float)rand() / RAND_MAX;
+							}*/
+							sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = PC[q1][q2][q3].contact[h];
+						}
+
+
+					}
+				}
+			}
+			std::ofstream MatrStream("DBG\\SmMatrix.txt", std::ios_base::out | std::ios_base::trunc);
+			for (int i = 0; i < total_fragm_count; i++)
+			{
+				for (int j = 0; j < total_fragm_count; j++)
+				{
+					MatrStream << sm_matrix[i][j] << " ";
+				}
+				MatrStream << std::endl;
+			}
+			MatrStream.close();
+		}
+
+
 	}
 
 	if (read_init_stress)	//Сохранение остаточных напряжений

@@ -58,6 +58,8 @@ namespace model
 	int SurroundsGrade = 1;
 	bool SST_SAVING = false;
 
+	bool FRAGMENTATION = false;
+
 	int ReadParams(const char * filename)
 	{
 		tinyxml2::XMLDocument doc;
@@ -199,6 +201,8 @@ namespace model
 		title = rootnode->FirstChildElement("SaveSST")->GetText();
 		SST_SAVING = atoi(title);
 		
+		title = rootnode->FirstChildElement("Fragmentation")->GetText();
+		FRAGMENTATION = atoi(title);
 
 		return 0;
 	}
