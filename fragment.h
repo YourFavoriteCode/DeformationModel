@@ -63,6 +63,8 @@ namespace model
 			double, double);			//Задание начальной ориентации
 		void NDScalc();					//Вычисление НДС фрагмента
 		
+		float DisorientMeasure(int);	//Возвращает меру разориентации с выбранным соседом
+
 		Fragment();
 		~Fragment();
 

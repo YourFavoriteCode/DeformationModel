@@ -69,13 +69,17 @@ namespace model
 		* Задание всех материальных параметров фрагмента
 		* в зависимости от выбранного материала
 		*/
-		this->material = material_type;
-		double P1, P2, P3;
-		switch (material_type)
+		this->material = material_type;			//Тип материала
+		int LATTICE_TYPE;						//Тип решётки
+		double P1, P2, P3, P4, P5, P6;			//Упругие константы
+		double c;								//Отношение c/a (для ГПУ)
+
+		switch (material_type)//Идентификация материальных параметров
 		{
 		case 0://Сталь 45
 		{
 			SS_count = SS_COUNT_BCC;
+			LATTICE_TYPE = 0;
 			SS = new SlipSystem[SS_count];
 			for (int i = 0; i < 24; i++)
 			{
@@ -93,7 +97,103 @@ namespace model
 			P2 = STEEL_P2;
 			P3 = STEEL_P3;
 
+			break;
+		}
+		case 1://Медь
+		{
+			SS_count = SS_COUNT_FCC;
+			LATTICE_TYPE = 1;
+			SS = new SlipSystem[SS_count];
+			for (int i = 0; i < SS_count; i++)
+			{
+				SS[i].tc = CUPR_TC;
+			}
+			P1 = CUPR_P1;
+			P2 = CUPR_P2;
+			P3 = CUPR_P3;
+
+			break;
+		}
+		case 2://Титан
+		{
+			SS_count = SS_COUNT_HCP;
+			LATTICE_TYPE = 2;
+			SS = new SlipSystem[SS_count];
+			for (int i = 0; i < 6; i++)
+			{
+				SS[i].tc = TITAN_TC1;
+			}
+			for (int i = 6; i < 12; i++)
+			{
+				SS[i].tc = TITAN_TC2;
+			}
+			for (int i = 12; i < 36; i++)
+			{
+				SS[i].tc = TITAN_TC3;
+			}
 			
+			P1 = TITAN_P1;
+			P2 = TITAN_P2;
+			P3 = TITAN_P3;
+			P4 = TITAN_P4;
+			P5 = TITAN_P5;
+			P6 = TITAN_P6;
+
+			c = TITAN_C;
+			
+			break;
+		}
+		case 3://Аллюминий
+		{
+			SS_count = SS_COUNT_FCC;
+			LATTICE_TYPE = 1;
+			SS = new SlipSystem[SS_count];
+			for (int i = 0; i < SS_count; i++)
+			{
+				SS[i].tc = 8e6;//???????
+			}
+			P1 = ALLUM_P1;
+			P2 = ALLUM_P2;
+			P3 = ALLUM_P3;
+
+			break;
+		}
+		}
+
+		if (LATTICE_TYPE == 0 || LATTICE_TYPE == 1)//Идентификация упругх констант
+		{
+			//Подобная симметрия допустима только для кубических решёток
+			p.C[0][0][0][0] = p.C[1][1][1][1] = p.C[2][2][2][2] = P1;
+
+			p.C[0][0][1][1] = p.C[1][1][0][0] = p.C[2][2][1][1] =
+				p.C[1][1][2][2] = p.C[2][2][0][0] = p.C[0][0][2][2] = P2;
+
+			p.C[0][1][1][0] = p.C[1][2][1][2] = p.C[0][1][0][1] =
+				p.C[2][0][2][0] = p.C[0][2][0][2] = p.C[2][1][2][1] =
+				p.C[1][0][1][0] = p.C[1][0][0][1] = p.C[2][1][1][2] =
+				p.C[0][2][2][0] = p.C[1][2][2][1] = p.C[2][0][0][2] = P3;
+		}
+		else if (LATTICE_TYPE == 2)//ГПУ, альфа-титан
+		{
+			p.C[2][2][2][2] = P1;
+
+			p.C[0][0][0][0] = p.C[1][1][1][1] = P2;
+			
+			p.C[0][0][2][2] = p.C[2][2][0][0] = p.C[1][1][2][2] = p.C[2][2][1][1] = P3;
+
+			p.C[0][0][1][1] = p.C[1][1][0][0] = P4;
+						
+			p.C[1][2][1][2] = p.C[2][1][1][2] = p.C[1][2][2][1] = p.C[2][1][2][1] =
+				p.C[2][0][2][0] = p.C[2][0][0][2] = p.C[0][2][0][2] = p.C[0][2][2][0] = P5;
+
+			p.C[0][1][1][0] = p.C[1][0][1][0] = p.C[1][0][0][1] = p.C[0][1][0][1] = P6;
+			
+		}
+
+		switch (LATTICE_TYPE)//Идентификация систем скольжения
+		{
+		case 0://ОЦК
+		{
 			//-----------[110]
 			SS[0].Initialize(0, 1, 1, 1, -1, 1);
 			SS[1].Initialize(0, 1, 1, 1, 1, -1);
@@ -217,20 +317,8 @@ namespace model
 
 			break;
 		}
-		case 1://Медь
+		case 1://ГЦК
 		{
-			SS_count = SS_COUNT_FCC;
-			SS = new SlipSystem[SS_count];
-			for (int i = 0; i < SS_count; i++)
-			{
-				SS[i].tc = CUPR_TC;
-			}
-			P1 = CUPR_P1;
-			P2 = CUPR_P2;
-			P3 = CUPR_P3;
-
-			
-
 			SS[0].Initialize(1, -1, 1, 0, 1, 1);
 			SS[1].Initialize(1, 1, -1, 0, 1, 1);
 			SS[2].Initialize(1, 1, 1, 0, -1, 1);
@@ -263,24 +351,8 @@ namespace model
 
 			break;
 		}
-		case 2://Титан
+		case 2://ГПУ
 		{
-			SS_count = SS_COUNT_HCP;
-			SS = new SlipSystem[SS_count];
-			for (int i = 0; i < 6; i++)
-			{
-				SS[i].tc = TITAN_TC1;
-			}
-			for (int i = 6; i < 12; i++)
-			{
-				SS[i].tc = TITAN_TC2;
-			}
-			for (int i = 12; i < 36; i++)
-			{
-				SS[i].tc = TITAN_TC3;
-			}
-				
-			const double c = TITAN_C;
 			//Базисное скольжение
 			SS[0].Initialize(0, 0, 0, 1, 1, 1, -2, 0, c);// {0001} <11-20> 
 			SS[1].Initialize(0, 0, 0, 1, -1, -1, 2, 0, c);
@@ -323,38 +395,9 @@ namespace model
 			SS[33].Initialize(1, 1, -2, 2, 2, -1, -1, 3, c);
 			SS[34].Initialize(-2, 1, 1, 2, 1, -2, 1, 3, c);
 			SS[35].Initialize(-2, 1, 1, 2, -1, 2, -1, 3, c);
+
 			break;
 		}
-		
-		}
-		if (material == 0 || material == 1)
-		{
-			//Подобная симметрия допустима только для кубических решёток
-			p.C[0][0][0][0] = p.C[1][1][1][1] = p.C[2][2][2][2] = P1;
-
-			p.C[0][0][1][1] = p.C[1][1][0][0] = p.C[2][2][1][1] =
-				p.C[1][1][2][2] = p.C[2][2][0][0] = p.C[0][0][2][2] = P2;
-
-			p.C[0][1][1][0] = p.C[1][2][1][2] = p.C[0][1][0][1] =
-				p.C[2][0][2][0] = p.C[0][2][0][2] = p.C[2][1][2][1] =
-				p.C[1][0][1][0] = p.C[1][0][0][1] = p.C[2][1][1][2] =
-				p.C[0][2][2][0] = p.C[1][2][2][1] = p.C[2][0][0][2] = P3;
-		}
-		else if (material == 2)//ГПУ, альфа-титан
-		{
-			p.C[2][2][2][2] = TITAN_P1;
-
-			p.C[0][0][0][0] = p.C[1][1][1][1] = TITAN_P2;
-			
-			p.C[0][0][1][1] = p.C[1][1][0][0] = TITAN_P4;
-
-			p.C[0][0][2][2] = p.C[2][2][0][0] = p.C[1][1][2][2] = p.C[2][2][1][1] = TITAN_P3;
-
-			p.C[1][2][1][2] = p.C[2][1][1][2] = p.C[1][2][2][1] = p.C[2][1][2][1] =
-				p.C[2][0][2][0] = p.C[2][0][0][2] = p.C[0][2][0][2] = p.C[0][2][2][0] = TITAN_P5;
-
-			p.C[0][1][1][0] = p.C[1][0][1][0] = p.C[1][0][0][1] = p.C[0][1][0][1] = TITAN_P6;
-			
 		}
 	}
 
@@ -484,6 +527,29 @@ namespace model
 		stress = SQRT3_2 * sqrt(stress);
 	}
 
-	
+	float Fragment::DisorientMeasure(int h)
+	{
+		Vector e;
+		float M = 0;
+		e.setZero();
+		for (int i = 0; i < 3; i++, ++e.C[i])//<100><110><111>
+		{
+			e.Normalize();
+			Vector e1 = ScalMult(e, o);//Перевод в ЛСК
+			e1.Normalize();
 
+			float teta1 = (float)atan(sqrt(e1.C[0] * e1.C[0] + e1.C[1] * e1.C[1]) / e1.C[2]);
+			float fi1 = (float)atan(e1.C[1] / e1.C[0]);
+
+			e1 = ScalMult(e, surrounds[h].o);
+			e1.Normalize();
+
+			float teta2 = (float)atan(sqrt(e1.C[0] * e1.C[0] + e1.C[1] * e1.C[1]) / e1.C[2]);
+			float fi2 = (float)atan(e1.C[1] / e1.C[0]);
+
+			float L = acos(cos(teta1)*cos(teta2) + sin(teta1)*sin(teta2)*cos(fi1 - fi2)) / PI;//Нормировка по PI
+			M = L > M ? L : M;
+		}
+		return M;
+	}
 }
