@@ -100,7 +100,27 @@ namespace model
 		for (int h = 0; h < surround_count; h++)//Пробегаем по всем соседям фрагмента
 		{
 			if (f->contact[h] == 0) continue;//Если нет контакта - пропускаем
-			Tensor Lp = f->d_in - f->surrounds[h].d_in;//скачок пластических деформаций
+			Tensor d_in1, d_in2;
+			for (int i = 0; i < DIM; i++)
+			{
+				for (int j = 0; j < DIM; j++)
+				{
+					for (int k = 0; k < f->SS_count; k++)
+					{
+						if (f->SS[k].b.ScalMult(f->normals[h]) < 0) continue; //Скольжение от границы - вклад не вносится
+						d_in1.C[i][j] += f->SS[k].dgm * (f->SS[k].n.C[i] * f->SS[k].b.C[j] + f->SS[k].n.C[j] * f->SS[k].b.C[i]);
+					}
+					for (int k = 0; k < f->surrounds[h].SS_count; k++)
+					{
+						//if (f->SS[k].b.ScalMult(f->normals[h]) < 0) continue; //Скольжение от границы - вклад не вносится
+						d_in2.C[i][j] += f->surrounds[h].SS[k].dgm * (f->surrounds[h].SS[k].n.C[i] * f->surrounds[h].SS[k].b.C[j] +
+							f->surrounds[h].SS[k].n.C[j] * f->surrounds[h].SS[k].b.C[i]);
+					}
+				}
+			}
+			d_in1 /= 2.0;
+			d_in2 /= 2.0;
+			Tensor Lp = d_in1 - d_in2;
 			Lp.Transp();
 			Tensor buf = VectMult(f->normals[h], Lp);
 			Vector dm = ScalMult(buf, f->normals[h]);//Поверхностный вектор-момент
@@ -165,7 +185,9 @@ namespace model
 				for (int j = 0; j < DIM; j++)
 				{
 					for (int k = 0; k < DIM; k++)
+					{
 						f->om.C[i][j] -= LeviCivit(i, j, k) * e.C[k] * f->rot_speed;
+					}
 				}
 			}
 			
@@ -326,15 +348,11 @@ namespace model
 		SavePoints(f->o, "Polus\\S100.dat", 1, 0, 0);
 
 		/*---Семейство направлений [011]---*/
-		SavePoints(f->o, "Polus\\S10-1.dat", 1, 0, -1);
-		SavePoints(f->o, "Polus\\S01-1.dat", 0, 1, -1);
-		SavePoints(f->o, "Polus\\S1-10.dat", 1, -1, 0);
 		SavePoints(f->o, "Polus\\S011.dat", 0, 1, 1);
 		SavePoints(f->o, "Polus\\S110.dat", 1, 1, 0);
 		SavePoints(f->o, "Polus\\S101.dat", 1, 0, 1);
 
 		/*---Семейство направлений [111]---*/
-		SavePoints(f->o, "Polus\\S11-1.dat", 1, 1, -1);
 		SavePoints(f->o, "Polus\\S1-11.dat", 1, -1, 1);
 		SavePoints(f->o, "Polus\\S-111.dat", -1, 1, 1);
 		SavePoints(f->o, "Polus\\S111.dat", 1, 1, 1);
