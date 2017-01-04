@@ -39,13 +39,18 @@ namespace model
 		{
 			sum += C[i] * C[i];
 		}
-		return sqrt(sum);
+		double res = -1;	//В случае ошибки вернёт -1
+		if (!isnan(sum))
+		{
+			res = sqrt(sum);
+		}
+		return res;
 	}
 
 	int Vector::Normalize()
 	{
 		double norm = getNorm();
-		if (norm != 0)
+		if (norm > 0)
 		{
 			for (int i = 0; i < DIM; i++)
 			{
@@ -55,7 +60,7 @@ namespace model
 		}
 		else
 		{
-			return -1;		//Код ошибки деления на 0
+			return -1;		//Код ошибки деления на 0 и QNaN
 		}
 		
 	}
@@ -410,18 +415,18 @@ namespace model
 		b.Normalize();
 	}
 
-	void SlipSystem::Initialize(float nx1, float nx2,float nx3, float nx4,
+	void SlipSystem::Initialize(float nx1, float nx2, float nx3, float nx4,
 		float bx1, float bx2, float bx3, float bx4, float c)
 	{
 		/*
 		Инициализация четырёхиндексовых СС
 		*/
-		n.set(nx1, nx2, nx4*c);
+		n.set(nx1, nx2, nx4);
 
 		double u = (2.0 * bx1 + bx2) / 3.0;
 		double v = (bx1 + 2.0 * bx2) / 3.0;
 		double w = bx4 / 3.0;
-		b.set(u, v, w*c);
+		b.set(u, v, w);
 
 		n.Normalize();
 		b.Normalize();
