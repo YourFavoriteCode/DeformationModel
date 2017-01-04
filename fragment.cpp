@@ -19,7 +19,10 @@ namespace model
 		rot_speed = 0;
 		isRotate = false;
 		sum_angle = 0;
-		mc = 0;
+		rot_Mc = 0;
+		rot_A = 0;
+		rot_H = 0;
+		rot_L = 0;
 		rot_energy = 0;
 	}
 

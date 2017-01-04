@@ -55,8 +55,12 @@ namespace model
 		bool isRotate;					//Вращается ли решётка на текущем шаге
 		double rot_speed;				//Скорость вращения решётки
 		double sum_angle;				//Накопленный угол поворота решётки
-		double mc;						//Начальный критический момент
 		double rot_energy;				//Энергия ротаций фрагмента
+		
+		double rot_Mc;					//Начальный критический момент
+		double rot_H;					//Коэффициент при необратимой составляющей поворота
+		double rot_A;					//Коэффициент при обратимой составляющей поворота
+		double rot_L;					//Коэффициент при скорости поверхностных моментов
 
 		void setMaterialParams(int);	//Задание материальных параметров
 		void Orientate(double, double,
