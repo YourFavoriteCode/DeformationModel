@@ -88,13 +88,12 @@ namespace model
 			double vol = pow(f->size, 3);//Объём элемента
 			double dmc = HardRotK1 / vol * exp( - HardRotK2 * f->sum_angle);//Скорость приращения
 			f->dmc = dmc;
-			f->mc += dmc*dt;//Приращение критического момента
+			f->rot_Mc += dmc*dt;//Приращение критического момента
 		}
 	}
 
-	void Trusov_rotations_OLD(Fragment *f)
+	void Trusov_rotations(Fragment *f)
 	{
-		Vector M;						//Объёмный вектор-момент
 		Vector dM;						//Производная вектор-момента
 		double S = f->size*f->size;		//Площадь фасетки (полная)
 		for (int h = 0; h < surround_count; h++)//Пробегаем по всем соседям фрагмента
@@ -108,56 +107,58 @@ namespace model
 					for (int k = 0; k < f->SS_count; k++)
 					{
 						if (f->SS[k].b.ScalMult(f->normals[h]) < 0) continue; //Скольжение от границы - вклад не вносится
-						d_in1.C[i][j] += f->SS[k].dgm * (f->SS[k].n.C[i] * f->SS[k].b.C[j] + f->SS[k].n.C[j] * f->SS[k].b.C[i]);
+						d_in1.C[i][j] += f->SS[k].dgm * (f->SS[k].n.C[i] * f->SS[k].b.C[j]);
 					}
 					for (int k = 0; k < f->surrounds[h].SS_count; k++)
 					{
 						//if (f->SS[k].b.ScalMult(f->normals[h]) < 0) continue; //Скольжение от границы - вклад не вносится
-						d_in2.C[i][j] += f->surrounds[h].SS[k].dgm * (f->surrounds[h].SS[k].n.C[i] * f->surrounds[h].SS[k].b.C[j] +
-							f->surrounds[h].SS[k].n.C[j] * f->surrounds[h].SS[k].b.C[i]);
+						d_in2.C[i][j] += f->surrounds[h].SS[k].dgm * (f->surrounds[h].SS[k].n.C[i] * f->surrounds[h].SS[k].b.C[j]);
 					}
 				}
 			}
-			d_in1 /= 2.0;
-			d_in2 /= 2.0;
 			Tensor Lp = d_in1 - d_in2;
 			Lp.Transp();
 			Tensor buf = VectMult(f->normals[h], Lp);
 			Vector dm = ScalMult(buf, f->normals[h]);//Поверхностный вектор-момент
-			dm *= ROT_L;
+			dm *= f->rot_L;
 			Vector b1 = ScalMult(f->om, dm);//(коротационная производная)
 			Vector b2 = ScalMult(dm, f->om);
-			dm = dm - b1 + b2;
+			dm = dm + b1 - b2;
 			double c;		//Определяет площадь контакта (в долях от полной площади стороны куба)
 			if (h < 6) c = UniformDistrib(0.93, 0.07);
-			else if (h < 14) c = UniformDistrib(0.1, 0.05);
+			else if (h < 14) c =  UniformDistrib(0.1, 0.05);
 			else c = UniformDistrib(0.01, 0.005);
 			dM += dm*S*c;
 		}
 		dM /= f->volume;
-		dM /= f->mc;
 		double dMnorm = dM.getNorm();
-		f->moment += dM*dt;
-		M = f->moment;
+		Vector M = f->moment + dM*dt;
+		f->moment = M;
 		double norm = M.getNorm();
-		double pr = M.ScalMult(dM);
-		f->norm = norm;
-		double dFi = 0;		//Скорость вращения
-		if (norm >= f->mc && pr >= 0)	//Пластические и упругие развороты
+		
+		if (norm > f->rot_Mc || norm == -1)
 		{
-			dFi = ROT_A * dMnorm + ROT_H * norm ;
+			norm = f->rot_Mc;
+		}
+		f->norm = norm;
+	
+		double pr = M.ScalMult(dM);
+	
+		double dFi = 0;		//Скорость вращения
+		if (norm == f->rot_Mc && pr >= 0)	//Пластические и упругие развороты
+		{
+			dFi = f->rot_A * dMnorm + f->rot_H * norm;
 		}
 		else
 		{
-			dFi = ROT_A * dMnorm;		//Только упругие развороты
+			dFi = f->rot_A * dMnorm;		//Только упругие развороты
 		}
 		
-		f->isRotate = dFi > EPS*1e4;
+		f->isRotate = (dFi > EPS*1e4);
 		if (f->isRotate)
 		{
-			Vector e;					//Ось вращения решётки
-			e = M;						//сонаправлена с вектором момента
-			e.Normalize();		
+			Vector e = M;					//Ось вращения решётки сонаправлена с вектором момента
+			e.Normalize();
 			f->rot_speed = dFi;
 			dFi *= dt;
 			f->sum_angle += dFi;		//Накопленный угол вращения увеличивается
@@ -194,14 +195,14 @@ namespace model
 		}
 		else
 		{
+			f->om.setZero();
 			f->rot_speed = 0;		//Решётка не вращается
 			f->rot_energy = 0;		//Энергия вращения равна нулю
 		}
 	}
 
-	void Trusov_rotations(Fragment *f)
+	void Trusov_rotations_l(Fragment *f)
 	{
-
 		Vector *dm = new Vector[surround_count];
 		Vector M;
 		Vector dM;
@@ -221,18 +222,15 @@ namespace model
 					for (int k = 0; k < f->SS_count; k++)
 					{
 						if (f->SS[k].b.ScalMult(f->normals[h]) < 0) continue; //Скольжение от границы - вклад не вносится
-						d_in1.C[i][j] += f->SS[k].dgm * (f->SS[k].n.C[i] * f->SS[k].b.C[j] + f->SS[k].n.C[j] * f->SS[k].b.C[i]);
+						d_in1.C[i][j] += f->SS[k].dgm * (f->SS[k].n.C[i] * f->SS[k].b.C[j]);
 					}
 					for (int k = 0; k < f->surrounds[h].SS_count; k++)
 					{
 						//if (f->SS[k].b.ScalMult(f->normals[h]) < 0) continue; //Скольжение от границы - вклад не вносится
-						d_in2.C[i][j] += f->surrounds[h].SS[k].dgm * (f->surrounds[h].SS[k].n.C[i] * f->surrounds[h].SS[k].b.C[j] +
-							f->surrounds[h].SS[k].n.C[j] * f->surrounds[h].SS[k].b.C[i]);
+						d_in2.C[i][j] += f->surrounds[h].SS[k].dgm * (f->surrounds[h].SS[k].n.C[i] * f->surrounds[h].SS[k].b.C[j]);
 					}
 				}
 			}
-			d_in1 /= 2.0;
-			d_in2 /= 2.0;
 			Tensor Lp = d_in1 - d_in2;
 			Lp.Transp();
 
@@ -240,20 +238,16 @@ namespace model
 			Vector m = ScalMult(buf, f->normals[h]);//Поверхностный вектор-момент 
 			Vector b1 = ScalMult(f->om, m);//(коротационная производная)
 			Vector b2 = ScalMult(m, f->om);
-			dm[h] = m - b1 + b2;
-			dm[h] *= ROT_L;
-			/*	}
-
-			for (int h = 0; h < surround_count; h++)
-			{*/
+			dm[h] = m + b1 - b2;
+			dm[h] *= f->rot_L;
 			dM += dm[h];
 			dm[h] *= dt;
-			f->moments[h] += dm[h];
+			
 			double c;		//Определяет площадь контакта (в долях от полной площади стороны куба)
 			if (h < 6) c = UniformDistrib(0.93, 0.07);
 			else if (h < 14) c = UniformDistrib(0.1, 0.05);
 			else c = UniformDistrib(0.01, 0.005);
-			f->moments[h] *= S*c;
+			f->moments[h] += dm[h] * S*c;
 			M += f->moments[h];
 		}
 		double volume = pow(f->size, 3);		//Объём фрагмента
@@ -262,19 +256,19 @@ namespace model
 
 		double pr = M.ScalMult(dM);
 
-		M /= f->mc;
-		dM /= f->mc;
+		M /= f->rot_Mc;
+		dM /= f->rot_Mc;
 		double norm = M.getNorm();
 		double dMnorm = dM.getNorm();
 		f->norm = norm;
 		double dFi = 0;
-		if (norm >= f->mc && pr >= 0)	//Пластические и упругие развороты
+		if (norm >= f->rot_Mc && pr >= 0)	//Пластические и упругие развороты
 		{
-			dFi = ROT_A * dMnorm + ROT_H * norm;
+			dFi = f->rot_A * dMnorm + f->rot_H * norm;
 		}
 		else
 		{
-			dFi = ROT_A * dMnorm;		//Только упругие развороты
+			dFi = f->rot_A * dMnorm;		//Только упругие развороты
 		}
 
 		f->isRotate = dFi > EPS * 1e5;
