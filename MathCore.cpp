@@ -39,11 +39,9 @@ namespace model
 		{
 			sum += C[i] * C[i];
 		}
-		double res = -1;	//В случае ошибки вернёт -1
-		if (!isnan(sum))
-		{
-			res = sqrt(sum);
-		}
+		double res;	
+		if (isnormal(sum)) res = sqrt(sum); 
+		else res = -1;//В случае ошибки вернёт -1
 		return res;
 	}
 
