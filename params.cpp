@@ -34,6 +34,8 @@ namespace model
 	double plot_period = 2;
 	double polus_period = 20;
 	int debug_period = 1000;
+	int DEBUG_START = 0;
+	int DEBUG_STOP = INT_MAX;
 
 	double dgm0 = 1e-5;
 	double m = 100;
@@ -195,7 +197,12 @@ namespace model
 		title = rootnode->FirstChildElement("FragmSizeDsp")->GetText();
 		fragm_size_dsp = atof(title);
 
-		title = rootnode->FirstChildElement("ReadInitStress")->GetText();
+		title = rootnode->FirstChildElement("StartWritingDbgInfo")->GetText();
+		DEBUG_START = atoi(title);
+		title = rootnode->FirstChildElement("StopWritingDbgInfo")->GetText();
+		DEBUG_STOP = atoi(title);
+		
+		title = rootnode->FirstChildElement("ReadInitStress")->GetText();//TODO: Проверка на NULL
 		read_init_stress = atoi(title);
 
 		title = rootnode->FirstChildElement("SaveSST")->GetText();

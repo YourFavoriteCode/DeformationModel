@@ -87,6 +87,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		std::cout << " ++++++++++++++DEBUG MODE++++++++++++++" << std::endl;
 		std::cout << "       Period: " << debug_period << std::endl;
+		std::cout << "       Start: " << DEBUG_START << std::endl;
+		std::cout << "       Stop: " << DEBUG_STOP << std::endl;
 	}
 	if (fix_orient == 1)
 	{
@@ -171,8 +173,10 @@ int _tmain(int argc, _TCHAR* argv[])
 					PC[q1][q2][q3].setMaterialParams(another_material);
 				}
 				
-				PC[q1][q2][q3].mc = ROT_MC;//Раздача начальных критических моментов
-
+				PC[q1][q2][q3].rot_Mc = ROT_MC;//Раздача начальных критических моментов
+				PC[q1][q2][q3].rot_A = ROT_A;
+				PC[q1][q2][q3].rot_H = ROT_H;
+				PC[q1][q2][q3].rot_L = ROT_L;
 				PC[q1][q2][q3].position = get1DPos(q1, q2, q3);//Получение порядкового номера
 				
 				if (RAND_ORIENT)//Случайный равномерный закон
@@ -251,47 +255,49 @@ int _tmain(int argc, _TCHAR* argv[])
 					//qq1, qq2, qq3 - координаты зерна соседа
 					//y - номер нормали в соседнем зерне в направлении данного зерна
 					double fi = ((double)rand() / RAND_MAX) * (M_PI / 12);
+					double cf = cos(fi);
+					double sf = sin(fi);
 					//TODO: предвычислить наиболее распространенные слагаемые для удобства чтения
 					switch (h)
 					{
 					case 0://Вверх
 					{
-						PC[q1][q2][q3].normals[h].set(-sin(fi), sin(fi) / cos(fi), 1 / cos(fi));
+						PC[q1][q2][q3].normals[h].set(-sf, sf / cf, 1 / cf);
 						qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
 						y = 5;
 						break;
 					}
 					case 1://От нас
 					{
-						PC[q1][q2][q3].normals[h].set(-1 / cos(fi), sin(fi), sin(fi) / cos(fi));
+						PC[q1][q2][q3].normals[h].set(-1 / cf, sf, sf / cf);
 						qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
 						y = 3;
 						break;
 					}
 					case 2://Вправо
 					{
-						PC[q1][q2][q3].normals[h].set(sin(fi) / cos(fi), 1 / cos(fi), -sin(fi));
+						PC[q1][q2][q3].normals[h].set(sf / cf, 1 / cf, -sf);
 						qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
 						y = 4;
 						break;
 					}
 					case 3://На нас
 					{
-						PC[q1][q2][q3].normals[h].set(1 / cos(fi), -sin(fi), sin(fi) / cos(fi));
+						PC[q1][q2][q3].normals[h].set(1 / cf, -sf, sf / cf);
 						qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
 						y = 1;
 						break;
 					}
 					case 4://Влево
 					{
-						PC[q1][q2][q3].normals[h].set(sin(fi), -1 / cos(fi), -sin(fi) / cos(fi));
+						PC[q1][q2][q3].normals[h].set(sf, -1 / cf, -sf / cf);
 						qq2 = q2 == 0 ? fragm_count - 1 : q2 - 1;
 						y = 2;
 						break;
 					}
 					case 5://Вниз
 					{
-						PC[q1][q2][q3].normals[h].set(sin(fi) / cos(fi), sin(fi), -1 / cos(fi));
+						PC[q1][q2][q3].normals[h].set(sf / cf, sf, -1 / cf);
 						qq3 = q3 == 0 ? fragm_count - 1 : q3 - 1;
 						y = 0;
 						break;
@@ -300,7 +306,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					/**************           Рёбра куба          ***************************/
 					case 6://Лево от нас
 					{
-						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cos(fi)*cos(PI_2), -cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cf*cos(PI_2), -cos(fi + PI_2) * cf*cos(PI_2), cf*cf*cos(PI_2));
 						qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
 						qq2 = q2 == 0 ? fragm_count - 1 : q2 - 1;
 						y = 9;
@@ -308,7 +314,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 7://Лево на нас
 					{
-						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cos(fi)*cos(PI_2), -cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cf*cos(PI_2), -cos(fi + PI_2) * cf*cos(PI_2), cf*cf*cos(PI_2));
 						qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
 						qq2 = q2 == 0 ? fragm_count - 1 : q2 - 1;
 						y = 8;
@@ -316,7 +322,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 8://право от нас
 					{
-						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cf*cos(PI_2), cos(fi + PI_2) * cf*cos(PI_2), cf*cf*cos(PI_2));
 						qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
 						qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
 						y = 7;
@@ -324,7 +330,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 9://Право на нас
 					{
-						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cf*cos(PI_2), cos(fi + PI_2) * cf*cos(PI_2), cf*cf*cos(PI_2));
 						qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
 						qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
 						y = 6;
@@ -332,7 +338,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 10://Верх лево
 					{
-						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * sin(fi), -cos(fi + PI_2) * cos(fi), sin(fi + PI_2)*cos(fi));
+						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * sf, -cos(fi + PI_2) * cf, sin(fi + PI_2)*cf);
 						qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
 						qq2 = q2 == 0 ? fragm_count - 1 : q2 - 1;
 						y = 15;
@@ -340,7 +346,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 11://Верх право
 					{
-						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * sin(fi), cos(fi + PI_2) * cos(fi), sin(fi + PI_2)*cos(fi));
+						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * sf, cos(fi + PI_2) * cf, sin(fi + PI_2)*cf);
 						qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
 						qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
 						y = 14;
@@ -348,7 +354,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 12://Верх на нас
 					{
-						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cos(fi), cos(fi + PI_2) * sin(fi), sin(fi + PI_2)*cos(fi));
+						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cf, cos(fi + PI_2) * sf, sin(fi + PI_2)*cf);
 						qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
 						qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
 						y = 17;
@@ -356,7 +362,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 13://Верх от нас
 					{
-						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cos(fi), cos(fi + PI_2) * sin(fi), sin(fi + PI_2)*cos(fi));
+						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cf, cos(fi + PI_2) * sf, sin(fi + PI_2)*cf);
 						qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
 						qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
 						y = 16;
@@ -364,7 +370,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 14://Низ лево
 					{
-						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * sin(fi), -cos(fi + PI_2) * cos(fi), -sin(fi + PI_2)*cos(fi));
+						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * sf, -cos(fi + PI_2) * cf, -sin(fi + PI_2)*cf);
 						qq2 = q2 == 0 ? fragm_count - 1 : q2 - 1;
 						qq3 = q3 == 0 ? fragm_count - 1 : q3 - 1;
 						y = 11;
@@ -372,7 +378,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 15://Низ право
 					{
-						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * sin(fi), cos(fi + PI_2) * cos(fi), -sin(fi + PI_2)*cos(fi));
+						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * sf, cos(fi + PI_2) * cf, -sin(fi + PI_2)*cf);
 						qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
 						qq3 = q3 == 0 ? fragm_count - 1 : q3 - 1;
 						y = 10;
@@ -380,7 +386,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 16://Низ на нас
 					{
-						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cos(fi), -cos(fi + PI_2) * sin(fi), -sin(fi + PI_2)*cos(fi));
+						PC[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cf, -cos(fi + PI_2) * sf, -sin(fi + PI_2)*cf);
 						qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
 						qq3 = q3 == 0 ? fragm_count - 1 : q3 - 1;
 						y = 13;
@@ -388,7 +394,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 17://Низ от нас
 					{
-						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cos(fi), -cos(fi + PI_2) * sin(fi), -sin(fi + PI_2)*cos(fi));
+						PC[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cf, -cos(fi + PI_2) * sf, -sin(fi + PI_2)*cf);
 						qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
 						qq3 = q3 == 0 ? fragm_count - 1 : q3 - 1;
 						y = 12;
@@ -397,7 +403,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					/**************      Вершины     *****************/
 					case 18://верх лево от нас
 					{
-						PC[q1][q2][q3].normals[h].set(-cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(-cf * cf*cos(PI_2)*cos(PI_2), -cf*cf * cos(PI_2)*cos(PI_2), cf*cf*cos(PI_2)*cos(PI_2));
 						qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
 						qq2 = q2 == 0 ? fragm_count - 1 : q2 - 1;
 						qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
@@ -406,7 +412,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 19://верх лево на нас
 					{
-						PC[q1][q2][q3].normals[h].set(cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(cf * cf*cos(PI_2)*cos(PI_2), -cf*cf * cos(PI_2)*cos(PI_2), cf*cf*cos(PI_2)*cos(PI_2));
 						qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
 						qq2 = q2 == 0 ? fragm_count - 1 : q2 - 1;
 						qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
@@ -415,7 +421,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 20://верх право от нас
 					{
-						PC[q1][q2][q3].normals[h].set(-cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(-cf * cf*cos(PI_2)*cos(PI_2), cf*cf * cos(PI_2)*cos(PI_2), cf*cf*cos(PI_2)*cos(PI_2));
 						qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
 						qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
 						qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
@@ -424,7 +430,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 21://верх право на нас
 					{
-						PC[q1][q2][q3].normals[h].set(cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(cf * cf*cos(PI_2)*cos(PI_2), cf*cf * cos(PI_2)*cos(PI_2), cf*cf*cos(PI_2)*cos(PI_2));
 						qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
 						qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
 						qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
@@ -433,7 +439,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 22://низ лево от нас
 					{
-						PC[q1][q2][q3].normals[h].set(-cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(-cf * cf*cos(PI_2)*cos(PI_2), -cf*cf * cos(PI_2)*cos(PI_2), -cf*cf*cos(PI_2)*cos(PI_2));
 						qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
 						qq2 = q2 == 0 ? fragm_count - 1 : q2 - 1;
 						qq3 = q3 == 0 ? fragm_count - 1 : q3 - 1;
@@ -442,7 +448,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 23://низ лево на нас
 					{
-						PC[q1][q2][q3].normals[h].set(cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(cf * cf*cos(PI_2)*cos(PI_2), -cf*cf * cos(PI_2)*cos(PI_2), -cf*cf*cos(PI_2)*cos(PI_2));
 						qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
 						qq2 = q2 == 0 ? fragm_count - 1 : q2 - 1;
 						qq3 = q3 == 0 ? fragm_count - 1 : q3 - 1;
@@ -451,7 +457,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 24://низ право от нас
 					{
-						PC[q1][q2][q3].normals[h].set(-cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(-cf * cf*cos(PI_2)*cos(PI_2), cf*cf * cos(PI_2)*cos(PI_2), -cf*cf*cos(PI_2)*cos(PI_2));
 
 						qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
 						qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
@@ -461,7 +467,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}
 					case 25://низ право на нас
 					{
-						PC[q1][q2][q3].normals[h].set(cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
+						PC[q1][q2][q3].normals[h].set(cf * cf*cos(PI_2)*cos(PI_2), cf*cf * cos(PI_2)*cos(PI_2), -cf*cf*cos(PI_2)*cos(PI_2));
 						qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
 						qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
 						qq3 = q3 == 0 ? fragm_count - 1 : q3 - 1;
@@ -630,8 +636,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::ofstream StrainStreamAll("Plot\\Xall.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
 	std::ofstream StressStreamAll("Plot\\Yall.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
 	std::ofstream ActiveSysStream("Plot\\ActiveSS.dat", std::ios_base::out | std::ios_base::trunc | std::ios::binary);
-
-	std::ofstream dbgstream[15];
+	const int file_count = 16;
+	std::ofstream dbgstream[file_count];
 	if (debug_period > 0)				//Открытие файлов для отладочных данных
 	{
 		dbgstream[0].open("DBG\\o.txt", std::ios_base::out | std::ios_base::trunc);
@@ -649,6 +655,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		dbgstream[12].open("DBG\\Macro_Sgm.txt", std::ios_base::out | std::ios_base::trunc);
 		dbgstream[13].open("DBG\\Macro_dSgm.txt", std::ios_base::out | std::ios_base::trunc);
 		dbgstream[14].open("DBG\\Macro_E.txt", std::ios_base::out | std::ios_base::trunc);
+		dbgstream[15].open("DBG\\VOL_M.txt", std::ios_base::out | std::ios_base::trunc);
 	}
 	
 	//Сохранение начальных полюсных фигур и ССТ
@@ -671,6 +678,17 @@ int _tmain(int argc, _TCHAR* argv[])
 		std::cout << (t2 - t1) / 1000.0 << " sec" << std::endl;
 	}
 	
+	{
+		std::ofstream dbg;
+		dbg.open("scal.txt", std::ios_base::out | std::ios_base::trunc);
+		for (int i = 0; i < PC[0][0][0].SS_count; i++)
+		{
+			double sc = PC[0][0][0].SS[i].n.ScalMult(PC[0][0][0].SS[i].b);
+			dbg << sc << " ";
+		}
+		dbg.close();
+	}
+
 	/*******************************************************
 	**********      Цикл по этапам нагружения      *********
 	*******************************************************/
@@ -933,12 +951,13 @@ int _tmain(int argc, _TCHAR* argv[])
 							RotEnergy += PC[q1][q2][q3].rot_energy;				//Суммирование энергий вращения
 							RotSpeed += PC[q1][q2][q3].rot_speed;				//Суммирование скоростей вращения
 							norma += PC[q1][q2][q3].norm;
-							Mc += PC[q1][q2][q3].mc;
+							Mc += PC[q1][q2][q3].rot_Mc;
 							dmc += PC[q1][q2][q3].dmc;
 							
 						}
 					}
 				}
+				//dbgstream[15] << std::endl;
 				norma /= total_fragm_count;
 				Mc /= total_fragm_count;
 				dmc /= total_fragm_count;
@@ -995,11 +1014,11 @@ int _tmain(int argc, _TCHAR* argv[])
 			/************************************************************
 			***********	       Запись пошаговых данных	      ***********
 			************************************************************/
-			if (DEBUG_STEP == debug_period)
+			if (CURR_STEP >= DEBUG_START && CURR_STEP <= DEBUG_STOP && DEBUG_STEP == debug_period)
 			{
 				DEBUG_STEP = 0;
 
-				for (int i = 0; i < 15; i++)
+				for (int i = 0; i < file_count; i++)
 				{
 					dbgstream[i] << "********      STEP " << CURR_STEP << "      ********" << std::endl << std::endl;
 				}
@@ -1028,6 +1047,7 @@ int _tmain(int argc, _TCHAR* argv[])
 								dbgstream[9] << PC[q1][q2][q3].SS[f].t << " ";
 							}
 							dbgstream[9] << std::endl << std::endl;
+							dbgstream[15] << PC[q1][q2][q3].dmoment.C[0] << " " << PC[q1][q2][q3].dmoment.C[1] << " " << PC[q1][q2][q3].dmoment.C[2]<<std::endl;
 						}
 					}
 				}
@@ -1039,7 +1059,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 			CURR_STEP++;
 			PROC_STEP++;
-			DEBUG_STEP++;
+			if (CURR_STEP >= DEBUG_START && CURR_STEP <= DEBUG_STOP) DEBUG_STEP++;
 		}
 
 		if (UNLOADING)	//Упругая разгрузка представительного объёма
@@ -1204,11 +1224,11 @@ int _tmain(int argc, _TCHAR* argv[])
 				/************************************************************
 				***********	       Запись пошаговых данных	      ***********
 				************************************************************/
-				if (DEBUG_STEP == debug_period)
+				if (CURR_STEP >= DEBUG_START && CURR_STEP <= DEBUG_STOP && DEBUG_STEP == debug_period)
 				{
 					DEBUG_STEP = 0;
 
-					for (int i = 0; i < 15; i++)
+					for (int i = 0; i < file_count; i++)
 					{
 						dbgstream[i] << "********      STEP " << CURR_STEP << "      ********" << std::endl << std::endl;
 					}
@@ -1249,7 +1269,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				
 				CURR_STEP++;
 				PROC_STEP++;
-				DEBUG_STEP++;
+				if (CURR_STEP >= DEBUG_START && CURR_STEP <= DEBUG_STOP) DEBUG_STEP++;
 			}
 		}
 
@@ -1380,7 +1400,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	if (debug_period > 0)
 	{
-		for (int i = 0; i < 15; i++)
+		for (int i = 0; i < file_count; i++)
 		{
 			dbgstream[i].close();
 		}

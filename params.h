@@ -25,6 +25,8 @@ namespace model
 	extern double plot_period;				//Период сохранения диаграммы НДС
 	extern double polus_period;				//Период сохранения ПФ
 	extern int debug_period;				//Период сохранения отладочных данных
+	extern int DEBUG_START;					//Нижнее ограничение записи отладочной информации
+	extern int DEBUG_STOP;					//Верхнее ограничение записи отладочной информации
 	extern bool read_init_stress;			//Считывание остаточных напряжений из файла и запись в конце
 	extern bool SST_SAVING;					//Сохранение информации о ССТ
 
