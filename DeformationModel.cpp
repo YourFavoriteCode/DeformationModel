@@ -1047,7 +1047,7 @@ int _tmain(int argc, _TCHAR* argv[])
 								dbgstream[9] << PC[q1][q2][q3].SS[f].t << " ";
 							}
 							dbgstream[9] << std::endl << std::endl;
-							dbgstream[15] << PC[q1][q2][q3].dmoment.C[0] << " " << PC[q1][q2][q3].dmoment.C[1] << " " << PC[q1][q2][q3].dmoment.C[2]<<std::endl;
+							dbgstream[15] << PC[q1][q2][q3].moment.C[0] << " " << PC[q1][q2][q3].moment.C[1] << " " << PC[q1][q2][q3].moment.C[2]<<std::endl;
 						}
 					}
 				}
