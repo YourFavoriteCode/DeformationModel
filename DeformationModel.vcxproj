@@ -186,6 +186,7 @@
     <ClCompile Include="hardening.cpp" />
     <ClCompile Include="MathCore.cpp" />
     <ClCompile Include="params.cpp" />
+    <ClCompile Include="polycrystall.cpp" />
     <ClCompile Include="rotations.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
