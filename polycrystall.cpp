@@ -197,7 +197,6 @@ namespace model
 					//Выделение памяти под массивы, необходимые для работы с окружением
 					C[q1][q2][q3].surrounds = new Fragment[surround_count];
 					C[q1][q2][q3].normals = new Vector[surround_count];
-					C[q1][q2][q3].moments = new Vector[surround_count];
 					C[q1][q2][q3].contact = new int[surround_count];
 
 					for (int h = 0; h < surround_count; h++)
