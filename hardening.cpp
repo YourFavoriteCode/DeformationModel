@@ -39,7 +39,14 @@ namespace model
 				napr = CUPR_TC;
 				break;
 			}
-			
+			case 2://Титан (ГПУ)
+			{
+				if (k < 6) napr = TITAN_TC1;
+				else if (k < 12) napr = TITAN_TC2;
+				else napr = TITAN_TC3;
+				break;
+			}
+
 			}
 			f->SS[k].tc += napr*osn*dt;
 		}
@@ -51,13 +58,11 @@ namespace model
 		{
 			Vector b1 = ScalMult(f->o, f->SS[k].b);//Перевели вектор b текущей СС данного зерна в ЛСК
 			double zgu = 0;
-			double zguk;
-			
 			for (int h = 0; h < surround_count; h++)	//Цикл по фасеткам			
 			{
 				if (f->contact[h] == 0) continue;//Если нет контакта - пропускаем
 				if (f->SS[k].b.ScalMult(f->normals[h]) < 0) continue; //Скольжение от границы - пропускаем
-				zguk = HARD_BOUND_K * f->SS[k].dgm * f->SS[k].gmm / f->size;
+				double zguk = HARD_BOUND_K * f->SS[k].dgm * f->SS[k].gmm / f->size;
 				double min = 1.0;//Минимум
 				for (int p = 0; p < f->surrounds[h].SS_count; p++)	//Цикл по системам соседнего зерна
 				{
@@ -74,7 +79,7 @@ namespace model
 				zgu += zguk*min;
 			}
 
-			/*if (!isnan(zgu))*/ f->SS[k].tc += zgu;
+			f->SS[k].tc += zgu;
 		}
 	}
 
