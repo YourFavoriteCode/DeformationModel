@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include <cmath>
 #include <cstdlib>
 #include <omp.h>
@@ -52,10 +52,10 @@ namespace model
 
 	void Polycrystall::OpenFiles()
 	{
-		TruncPoleFiles();				//Очистка всех файлов полюсных фигур
+		TruncPoleFiles();				//РћС‡РёСЃС‚РєР° РІСЃРµС… С„Р°Р№Р»РѕРІ РїРѕР»СЋСЃРЅС‹С… С„РёРіСѓСЂ
 		TruncSSTFiles();
 
-		Datastream = new std::ofstream[5];
+		Datastream = new std::ofstream[5];//РћС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»РѕРІ РґР»СЏ Р·Р°РїРёСЃРё РєСЂРёРІС‹С… РќР”РЎ
 		Datastream[0].open("Plot\\X.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
 		Datastream[1].open("Plot\\Y.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
 		Datastream[2].open("Plot\\Xall.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
@@ -63,7 +63,7 @@ namespace model
 		Datastream[4].open("Plot\\ActiveSS.dat", std::ios_base::out | std::ios_base::trunc | std::ios::binary);
 
 		dbgstream = new std::ofstream[file_count];
-		if (debug_period > 0)				//Открытие файлов для отладочных данных
+		if (debug_period > 0)				//РћС‚РєСЂС‹С‚РёРµ С„Р°Р№Р»РѕРІ РґР»СЏ РѕС‚Р»Р°РґРѕС‡РЅС‹С… РґР°РЅРЅС‹С…
 		{
 			dbgstream[0].open("DBG\\o.txt", std::ios_base::out | std::ios_base::trunc);
 			dbgstream[1].open("DBG\\e.txt", std::ios_base::out | std::ios_base::trunc);
@@ -103,7 +103,6 @@ namespace model
 			TestStream[i].close();
 		}
 
-
 		if (debug_period > 0)
 		{
 			for (int i = 0; i < file_count; i++)
@@ -118,7 +117,7 @@ namespace model
 		fragm_count = count;
 		total_fragm_count = (int)pow(count, 3);
 
-		C = new Fragment**[count];
+		C = new Fragment**[count];		//Р’С‹РґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё РїРѕРґ РјР°СЃСЃРёРІ
 		for (int i = 0; i < count; i++)
 		{
 			C[i] = new Fragment*[count];
@@ -137,11 +136,11 @@ namespace model
 			{
 				for (int q3 = 0; q3 < fragm_count; q3++)
 				{
-					//Задание материала 
-					int another_material;//Примесная фаза
+					//Р—Р°РґР°РЅРёРµ РјР°С‚РµСЂРёР°Р»Р° 
+					int another_material;//РџСЂРёРјРµСЃРЅР°СЏ С„Р°Р·Р°
 					another_material = (material == 1) ? 0 : 1;
 
-					int a = (int)(((double)rand() / RAND_MAX) * 100);//На всё воля божья
+					int a = (int)(((double)rand() / RAND_MAX) * 100);//РќР° РІСЃС‘ РІРѕР»СЏ Р±РѕР¶СЊСЏ
 					if (a <= material_purity)
 					{
 						C[q1][q2][q3].setMaterialParams(material);
@@ -151,13 +150,13 @@ namespace model
 						C[q1][q2][q3].setMaterialParams(another_material);
 					}
 
-					C[q1][q2][q3].rot_Mc = ROT_MC;//Раздача начальных критических моментов
-					C[q1][q2][q3].rot_A = ROT_A;
+					C[q1][q2][q3].rot_Mc = ROT_MC;	//Р Р°Р·РґР°С‡Р° РЅР°С‡Р°Р»СЊРЅС‹С… РєСЂРёС‚РёС‡РµСЃРєРёС… РјРѕРјРµРЅС‚РѕРІ
+					C[q1][q2][q3].rot_A = ROT_A;	//Рё РїР°СЂР°РјРµС‚СЂРѕРІ РјРѕРґРµР»Рё СЂРѕС‚Р°С†РёР№
 					C[q1][q2][q3].rot_H = ROT_H;
 					C[q1][q2][q3].rot_L = ROT_L;
-					C[q1][q2][q3].position = get1DPos(q1, q2, q3);//Получение порядкового номера
+					C[q1][q2][q3].position = get1DPos(q1, q2, q3);//РџРѕР»СѓС‡РµРЅРёРµ РїРѕСЂСЏРґРєРѕРІРѕРіРѕ РЅРѕРјРµСЂР° С„СЂР°РіРјРµРЅС‚Р°
 
-					if (RAND_ORIENT)//Случайный равномерный закон
+					if (RAND_ORIENT)//РџРѕР»СѓС‡РµРЅРёРµ РѕСЂРёРµРЅС‚Р°С†РёРѕРЅРЅРѕРіРѕ С‚РµРЅР·РѕСЂР° (СЃР»СѓС‡Р°Р№РЅС‹Р№ СЂР°РІРЅРѕРјРµСЂРЅС‹Р№ Р·Р°РєРѕРЅ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ)
 					{
 						double a = ((double)rand() / RAND_MAX) * (PI);
 						double g = ((double)rand() / RAND_MAX) * (PI);
@@ -165,35 +164,37 @@ namespace model
 						double y2 = ((double)rand() / RAND_MAX);
 						C[q1][q2][q3].Orientate(a, g, y1, y2);
 					}
-					else//КСК=ЛСК
+					else//РџРѕР»СѓС‡РµРЅРёРµ РѕСЂРёРµРЅС‚Р°С†РёРѕРЅРЅРѕРіРѕ С‚РµРЅР·РѕСЂР° (РљРЎРљ=Р›РЎРљ)
 					{
 						C[q1][q2][q3].o.setUnit();
 					}
-					//Задание размеров фрагментов
+					//Р—Р°РґР°РЅРёРµ СЂР°Р·РјРµСЂРѕРІ С„СЂР°РіРјРµРЅС‚РѕРІ
 					switch (fragm_size_law)
 					{
-					case 0://Равномерное
+					case 0://Р Р°РІРЅРѕРјРµСЂРЅРѕРµ
 					{
 						C[q1][q2][q3].size = UniformDistrib(fragm_size_m, fragm_size_dsp);
 						break;
 					}
-					case 1://Нормальное
+					case 1://РќРѕСЂРјР°Р»СЊРЅРѕРµ
 					{
 						C[q1][q2][q3].size = NormalDistrib(fragm_size_m, fragm_size_dsp);
 						break;
 					}
-					case 2://Логнормальное
+					case 2://Р›РѕРіРЅРѕСЂРјР°Р»СЊРЅРѕРµ
 					{
 						C[q1][q2][q3].size = LogNormalDistrib(fragm_size_m, fragm_size_dsp);
 						break;
 					}
-					case 3://Показательное
+					case 3://РџРѕРєР°Р·Р°С‚РµР»СЊРЅРѕРµ
 					{
-						C[q1][q2][q3].size = ExpDistrib(fragm_size_m);//Только один параметр
+						C[q1][q2][q3].size = ExpDistrib(fragm_size_m);//РўРѕР»СЊРєРѕ РѕРґРёРЅ РїР°СЂР°РјРµС‚СЂ
 						break;
 					}
 					}
-					C[q1][q2][q3].volume = pow(C[q1][q2][q3].size, 3);
+					C[q1][q2][q3].volume = pow(C[q1][q2][q3].size, 3);	//РћР±СЉС‘Рј С„СЂР°РіРјРµРЅС‚Р°
+					
+					//Р’С‹РґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё РїРѕРґ РјР°СЃСЃРёРІС‹, РЅРµРѕР±С…РѕРґРёРјС‹Рµ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РѕРєСЂСѓР¶РµРЅРёРµРј
 					C[q1][q2][q3].surrounds = new Fragment[surround_count];
 					C[q1][q2][q3].normals = new Vector[surround_count];
 					C[q1][q2][q3].moments = new Vector[surround_count];
@@ -201,7 +202,7 @@ namespace model
 
 					for (int h = 0; h < surround_count; h++)
 					{
-						C[q1][q2][q3].contact[h] = -1;		//Изначально контакт не задан
+						C[q1][q2][q3].contact[h] = -1;		//РР·РЅР°С‡Р°Р»СЊРЅРѕ РєРѕРЅС‚Р°РєС‚ РЅРµ Р·Р°РґР°РЅ
 					}
 				}
 			}
@@ -219,70 +220,70 @@ namespace model
 
 					for (int h = 0; h < surround_count; h++)
 					{
-						//Если контакт уже был задан - пропускаем
+						//Р•СЃР»Рё РєРѕРЅС‚Р°РєС‚ СѓР¶Рµ Р±С‹Р» Р·Р°РґР°РЅ - РїСЂРѕРїСѓСЃРєР°РµРј
 						if (C[q1][q2][q3].contact[h] != -1) continue;
-						//Определяем, граничат ли фрагменты
-						//Первые 6, т.е. боковые грани, граничат всегда
-						double a = h < 6 ? 1 : ((double)rand() / RAND_MAX);//На всё воля божья
+						//РћРїСЂРµРґРµР»СЏРµРј, РіСЂР°РЅРёС‡Р°С‚ Р»Рё С„СЂР°РіРјРµРЅС‚С‹
+						//РџРµСЂРІС‹Рµ 6, С‚.Рµ. Р±РѕРєРѕРІС‹Рµ РіСЂР°РЅРё, РіСЂР°РЅРёС‡Р°С‚ РІСЃРµРіРґР°
+						double a = h < 6 ? 1 : ((double)rand() / RAND_MAX);//РќР° РІСЃС‘ РІРѕР»СЏ Р±РѕР¶СЊСЏ
 						if (a < 0.5)
 						{
-							//Контакта нет - тоже пропускаем
+							//РљРѕРЅС‚Р°РєС‚Р° РЅРµС‚ - С‚РѕР¶Рµ РїСЂРѕРїСѓСЃРєР°РµРј
 							C[q1][q2][q3].contact[h] = 0;
 							continue;
 						}
 
 						int qq1 = q1, qq2 = q2, qq3 = q3, y;
-						//qq1, qq2, qq3 - координаты зерна соседа
-						//y - номер нормали в соседнем зерне в направлении данного зерна
+						//qq1, qq2, qq3 - РєРѕРѕСЂРґРёРЅР°С‚С‹ Р·РµСЂРЅР° СЃРѕСЃРµРґР°
+						//y - РЅРѕРјРµСЂ РЅРѕСЂРјР°Р»Рё РІ СЃРѕСЃРµРґРЅРµРј Р·РµСЂРЅРµ РІ РЅР°РїСЂР°РІР»РµРЅРёРё РґР°РЅРЅРѕРіРѕ Р·РµСЂРЅР°
 						double fi = ((double)rand() / RAND_MAX) * (PI / 12);
-						//TODO: предвычислить наиболее распространенные слагаемые для удобства чтения
+						//TODO: РїСЂРµРґРІС‹С‡РёСЃР»РёС‚СЊ РЅР°РёР±РѕР»РµРµ СЂР°СЃРїСЂРѕСЃС‚СЂР°РЅРµРЅРЅС‹Рµ СЃР»Р°РіР°РµРјС‹Рµ РґР»СЏ СѓРґРѕР±СЃС‚РІР° С‡С‚РµРЅРёСЏ
 						switch (h)
 						{
-						case 0://Вверх
+						case 0://Р’РІРµСЂС…
 						{
 							C[q1][q2][q3].normals[h].set(-sin(fi), sin(fi) / cos(fi), 1 / cos(fi));
 							qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
 							y = 5;
 							break;
 						}
-						case 1://От нас
+						case 1://РћС‚ РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(-1 / cos(fi), sin(fi), sin(fi) / cos(fi));
 							qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
 							y = 3;
 							break;
 						}
-						case 2://Вправо
+						case 2://Р’РїСЂР°РІРѕ
 						{
 							C[q1][q2][q3].normals[h].set(sin(fi) / cos(fi), 1 / cos(fi), -sin(fi));
 							qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
 							y = 4;
 							break;
 						}
-						case 3://На нас
+						case 3://РќР° РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(1 / cos(fi), -sin(fi), sin(fi) / cos(fi));
 							qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
 							y = 1;
 							break;
 						}
-						case 4://Влево
+						case 4://Р’Р»РµРІРѕ
 						{
 							C[q1][q2][q3].normals[h].set(sin(fi), -1 / cos(fi), -sin(fi) / cos(fi));
 							qq2 = q2 == 0 ? fragm_count - 1 : q2 - 1;
 							y = 2;
 							break;
 						}
-						case 5://Вниз
+						case 5://Р’РЅРёР·
 						{
 							C[q1][q2][q3].normals[h].set(sin(fi) / cos(fi), sin(fi), -1 / cos(fi));
 							qq3 = q3 == 0 ? fragm_count - 1 : q3 - 1;
 							y = 0;
 							break;
 						}
-						//Далее идут уже необязательные соседи
-						/**************           Рёбра куба          ***************************/
-						case 6://Лево от нас
+						//Р”Р°Р»РµРµ РёРґСѓС‚ СѓР¶Рµ РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅС‹Рµ СЃРѕСЃРµРґРё
+						/**************           Р С‘Р±СЂР° РєСѓР±Р°          ***************************/
+						case 6://Р›РµРІРѕ РѕС‚ РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cos(fi)*cos(PI_2), -cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2));
 							qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
@@ -290,7 +291,7 @@ namespace model
 							y = 9;
 							break;
 						}
-						case 7://Лево на нас
+						case 7://Р›РµРІРѕ РЅР° РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cos(fi)*cos(PI_2), -cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2));
 							qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
@@ -298,7 +299,7 @@ namespace model
 							y = 8;
 							break;
 						}
-						case 8://право от нас
+						case 8://РїСЂР°РІРѕ РѕС‚ РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2));
 							qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
@@ -306,7 +307,7 @@ namespace model
 							y = 7;
 							break;
 						}
-						case 9://Право на нас
+						case 9://РџСЂР°РІРѕ РЅР° РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi + PI_2) * cos(fi)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2));
 							qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
@@ -314,7 +315,7 @@ namespace model
 							y = 6;
 							break;
 						}
-						case 10://Верх лево
+						case 10://Р’РµСЂС… Р»РµРІРѕ
 						{
 							C[q1][q2][q3].normals[h].set(cos(fi + PI_2) * sin(fi), -cos(fi + PI_2) * cos(fi), sin(fi + PI_2)*cos(fi));
 							qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
@@ -322,7 +323,7 @@ namespace model
 							y = 15;
 							break;
 						}
-						case 11://Верх право
+						case 11://Р’РµСЂС… РїСЂР°РІРѕ
 						{
 							C[q1][q2][q3].normals[h].set(cos(fi + PI_2) * sin(fi), cos(fi + PI_2) * cos(fi), sin(fi + PI_2)*cos(fi));
 							qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
@@ -330,7 +331,7 @@ namespace model
 							y = 14;
 							break;
 						}
-						case 12://Верх на нас
+						case 12://Р’РµСЂС… РЅР° РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cos(fi), cos(fi + PI_2) * sin(fi), sin(fi + PI_2)*cos(fi));
 							qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
@@ -338,7 +339,7 @@ namespace model
 							y = 17;
 							break;
 						}
-						case 13://Верх от нас
+						case 13://Р’РµСЂС… РѕС‚ РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cos(fi), cos(fi + PI_2) * sin(fi), sin(fi + PI_2)*cos(fi));
 							qq3 = q3 == fragm_count - 1 ? 0 : q3 + 1;
@@ -346,7 +347,7 @@ namespace model
 							y = 16;
 							break;
 						}
-						case 14://Низ лево
+						case 14://РќРёР· Р»РµРІРѕ
 						{
 							C[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * sin(fi), -cos(fi + PI_2) * cos(fi), -sin(fi + PI_2)*cos(fi));
 							qq2 = q2 == 0 ? fragm_count - 1 : q2 - 1;
@@ -354,7 +355,7 @@ namespace model
 							y = 11;
 							break;
 						}
-						case 15://Низ право
+						case 15://РќРёР· РїСЂР°РІРѕ
 						{
 							C[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * sin(fi), cos(fi + PI_2) * cos(fi), -sin(fi + PI_2)*cos(fi));
 							qq2 = q2 == fragm_count - 1 ? 0 : q2 + 1;
@@ -362,7 +363,7 @@ namespace model
 							y = 10;
 							break;
 						}
-						case 16://Низ на нас
+						case 16://РќРёР· РЅР° РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(cos(fi + PI_2) * cos(fi), -cos(fi + PI_2) * sin(fi), -sin(fi + PI_2)*cos(fi));
 							qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
@@ -370,7 +371,7 @@ namespace model
 							y = 13;
 							break;
 						}
-						case 17://Низ от нас
+						case 17://РќРёР· РѕС‚ РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(-cos(fi + PI_2) * cos(fi), -cos(fi + PI_2) * sin(fi), -sin(fi + PI_2)*cos(fi));
 							qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
@@ -378,8 +379,8 @@ namespace model
 							y = 12;
 							break;
 						}
-						/**************      Вершины     *****************/
-						case 18://верх лево от нас
+						/**************      Р’РµСЂС€РёРЅС‹     *****************/
+						case 18://РІРµСЂС… Р»РµРІРѕ РѕС‚ РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(-cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
 							qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
@@ -388,7 +389,7 @@ namespace model
 							y = 25;
 							break;
 						}
-						case 19://верх лево на нас
+						case 19://РІРµСЂС… Р»РµРІРѕ РЅР° РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
 							qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
@@ -397,7 +398,7 @@ namespace model
 							y = 24;
 							break;
 						}
-						case 20://верх право от нас
+						case 20://РІРµСЂС… РїСЂР°РІРѕ РѕС‚ РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(-cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
 							qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
@@ -406,7 +407,7 @@ namespace model
 							y = 23;
 							break;
 						}
-						case 21://верх право на нас
+						case 21://РІРµСЂС… РїСЂР°РІРѕ РЅР° РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
 							qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
@@ -415,7 +416,7 @@ namespace model
 							y = 22;
 							break;
 						}
-						case 22://низ лево от нас
+						case 22://РЅРёР· Р»РµРІРѕ РѕС‚ РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(-cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
 							qq1 = q1 == 0 ? fragm_count - 1 : q1 - 1;
@@ -424,7 +425,7 @@ namespace model
 							y = 21;
 							break;
 						}
-						case 23://низ лево на нас
+						case 23://РЅРёР· Р»РµРІРѕ РЅР° РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
 							qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
@@ -433,7 +434,7 @@ namespace model
 							y = 20;
 							break;
 						}
-						case 24://низ право от нас
+						case 24://РЅРёР· РїСЂР°РІРѕ РѕС‚ РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(-cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
 
@@ -443,7 +444,7 @@ namespace model
 							y = 19;
 							break;
 						}
-						case 25://низ право на нас
+						case 25://РЅРёР· РїСЂР°РІРѕ РЅР° РЅР°СЃ
 						{
 							C[q1][q2][q3].normals[h].set(cos(fi) * cos(fi)*cos(PI_2)*cos(PI_2), cos(fi)*cos(fi) * cos(PI_2)*cos(PI_2), -cos(fi)*cos(fi)*cos(PI_2)*cos(PI_2));
 							qq1 = q1 == fragm_count - 1 ? 0 : q1 + 1;
@@ -454,26 +455,26 @@ namespace model
 						}
 						}
 
-						C[q1][q2][q3].surrounds[h] = C[qq1][qq2][qq3];//Здравствуй, сосед!
-						C[qq1][qq2][qq3].surrounds[y] = C[q1][q2][q3];//Приятно познакомиться!
+						C[q1][q2][q3].surrounds[h] = C[qq1][qq2][qq3];//Р—РґСЂР°РІСЃС‚РІСѓР№, СЃРѕСЃРµРґ!
+						C[qq1][qq2][qq3].surrounds[y] = C[q1][q2][q3];//РџСЂРёСЏС‚РЅРѕ РїРѕР·РЅР°РєРѕРјРёС‚СЊСЃСЏ!
 						C[q1][q2][q3].normals[h].Normalize();
 
 						for (int i = 0; i < DIM; i++)
 						{
-							C[qq1][qq2][qq3].normals[y].C[i] = -C[q1][q2][q3].normals[h].C[i];//Поделись нормалью
+							C[qq1][qq2][qq3].normals[y].C[i] = -C[q1][q2][q3].normals[h].C[i];//РџРѕРґРµР»РёСЃСЊ РЅРѕСЂРјР°Р»СЊСЋ
 						}
 
-						if (h < 6) C[q1][q2][q3].contact[h] = 1;//100 % соприкосновения
-						else if (h < 14) C[q1][q2][q3].contact[h] = 3;//5 % соприкосновения
-						else C[q1][q2][q3].contact[h] = 2;//10 % соприкосновения
+						if (h < 6) C[q1][q2][q3].contact[h] = 1;		//РљРѕРЅС‚Р°РєС‚ РЅР° РіСЂР°РЅРё РѕРєС‚Р°СЌРґСЂР°
+						else if (h < 14) C[q1][q2][q3].contact[h] = 3;	//РљРѕРЅС‚Р°РєС‚ РЅР° РІРµСЂС€РёРЅРµ РѕРєС‚Р°СЌРґСЂР°
+						else C[q1][q2][q3].contact[h] = 2;				//РљРѕРЅС‚Р°РєС‚ РЅР° СЂРµР±СЂРµ
 					}
-					if (surround_count > 6)	//Уменьшение объёма
+					if (surround_count > 6)	//РЈРјРµРЅСЊС€РµРЅРёРµ РѕР±СЉС‘РјР° РёР·-Р·Р° РѕС‚СЃРµС‡РµРЅРёР№
 					{
-						double a = C[q1][q2][q3].size * 0.1;				//Длина срезанной части вдоль ребра
-						double vol_edge = a*a*C[q1][q2][q3].size / 2.0;	//Объём, срезанный рёбрами
-						double vol_vertex = a*a*a / SQRT3;					//Объём, срезанный вершинами
-						int cut_edge = 0;		//Кол-во срезанных рёбер
-						int cut_vertex = 0;		//Кол-во срезанных вершин
+						double a = C[q1][q2][q3].size * 0.1;			//Р”Р»РёРЅР° СЃСЂРµР·Р°РЅРЅРѕР№ С‡Р°СЃС‚Рё РІРґРѕР»СЊ СЂРµР±СЂР°
+						double vol_edge = a*a*C[q1][q2][q3].size / 2.0;	//РћР±СЉС‘Рј, СЃСЂРµР·Р°РЅРЅС‹Р№ СЂС‘Р±СЂР°РјРё
+						double vol_vertex = a*a*a / SQRT3;				//РћР±СЉС‘Рј, СЃСЂРµР·Р°РЅРЅС‹Р№ РІРµСЂС€РёРЅР°РјРё
+						int cut_edge = 0;		//РљРѕР»-РІРѕ СЃСЂРµР·Р°РЅРЅС‹С… СЂС‘Р±РµСЂ
+						int cut_vertex = 0;		//РљРѕР»-РІРѕ СЃСЂРµР·Р°РЅРЅС‹С… РІРµСЂС€РёРЅ
 						for (int h = 6; h < surround_count; h++)
 						{
 							if (C[q1][q2][q3].contact[h] != 0)
@@ -482,7 +483,7 @@ namespace model
 								else cut_edge++;
 							}
 						}
-						C[q1][q2][q3].volume -= (cut_edge*vol_edge + cut_vertex*vol_vertex);//Вычитание
+						C[q1][q2][q3].volume -= (cut_edge*vol_edge + cut_vertex*vol_vertex);//Р’С‹С‡РёС‚Р°РЅРёРµ
 					}
 
 				}
@@ -507,9 +508,9 @@ namespace model
 
 	void Polycrystall::SaveDbgInfo()
 	{
-		for (int i = 0; i < file_count; i++)
+		for (int i = 0; i < file_count; i++)//Р’РёР·СѓР°Р»СЊРЅРѕРµ СЂР°Р·РґРµР»РµРЅРёРµ С€Р°РіРѕРІ 
 		{
-			dbgstream[i] << "********      STEP " << CURR_STEP << "      ********" << std::endl << std::endl;
+			dbgstream[i] << "#########################      STEP " << CURR_STEP << "      #########################" << std::endl << std::endl;
 		}
 
 		for (int q1 = 0; q1 < fragm_count; q1++)
@@ -549,10 +550,10 @@ namespace model
 
 	void Polycrystall::Load(bool unload)
 	{
-		
-		if (REAL_UNIAX || unload)	//Одноосное растяжение
+		/*РџР°СЂР°РјРµС‚СЂ unload РІРєР»СЋС‡Р°РµС‚ СЂР°Р·РіСЂСѓР·РєСѓ РїСЂРµРґСЃС‚Р°РІРёС‚РµР»СЊРЅРѕРіРѕ РѕР±СЉС‘РјР°*/
+		if (REAL_UNIAX || unload)	//РћРґРЅРѕРѕСЃРЅРѕРµ СЂР°СЃС‚СЏР¶РµРЅРёРµ
 		{
-			//Осреднение
+			//РћСЃСЂРµРґРЅРµРЅРёРµ
 			P.setZero();
 			D_in.setZero();
 			for (int q1 = 0; q1 < fragm_count; q1++)
@@ -570,20 +571,20 @@ namespace model
 			D_in /= (total_fragm_count);
 			P /= (total_fragm_count);
 
-			//Симметризация
+			//РЎРёРјРјРµС‚СЂРёР·Р°С†РёСЏ
 			P.Symmetrize();
 
 			D = !unload ? TensionStrainCalc(P, D_in, D.C[0][0]) : UnloadingStrainCalc(P, D_in, Sgm, lam);
 
-			Tensor b = D;
+			Tensor b = D;	//Р’С‹С‡РёСЃР»РµРЅРёРµ РёРЅС‚РµРЅСЃРёРІРЅРѕСЃС‚Рё РґРµС„РѕСЂРјР°С†РёР№
 			b *= dt;
 			E += b;
 			Tensor buf = E;
 			Strain = E.doubleScalMult(buf);
 			Strain = SQRT2_3*sqrt(Strain);
 
-			dSgm = TensionStressCalc(P, D_in, D);
-			dSgm *= dt;				//Приращение напряжений на шаге
+			dSgm = TensionStressCalc(P, D_in, D);//Р’С‹С‡РёСЃР»РµРЅРёРµ РёРЅС‚РµРЅСЃРёРІРЅРѕСЃС‚Рё РЅР°РїСЂСЏР¶РµРЅРёР№
+			dSgm *= dt;				//РџСЂРёСЂР°С‰РµРЅРёРµ РЅР°РїСЂСЏР¶РµРЅРёР№ РЅР° С€Р°РіРµ
 			Sgm += dSgm;
 			buf = Sgm;
 			Stress = Sgm.doubleScalMult(buf);
@@ -591,7 +592,7 @@ namespace model
 		}
 		else
 		{
-			Stress = 0;		//Вычисление интенсивностей осреднением
+			Stress = 0;		//Р’С‹С‡РёСЃР»РµРЅРёРµ РёРЅС‚РµРЅСЃРёРІРЅРѕСЃС‚РµР№ РѕСЃСЂРµРґРЅРµРЅРёРµРј
 			Strain = 0;
 			for (int q1 = 0; q1 < fragm_count; q1++)
 			{
@@ -609,9 +610,9 @@ namespace model
 		}
 
 		#pragma omp parallel for
-		//Часть, которую можно паралелить
-		//Здесь необходимо гарантировать защиту данных каждого фрагмента
-		//от перезаписи другими фрагментами
+		//Р§Р°СЃС‚СЊ, РєРѕС‚РѕСЂСѓСЋ РјРѕР¶РЅРѕ РїР°СЂР°Р»РµР»РёС‚СЊ
+		//Р—РґРµСЃСЊ РЅРµРѕР±С…РѕРґРёРјРѕ РіР°СЂР°РЅС‚РёСЂРѕРІР°С‚СЊ Р·Р°С‰РёС‚Сѓ РґР°РЅРЅС‹С… РєР°Р¶РґРѕРіРѕ С„СЂР°РіРјРµРЅС‚Р°
+		//РѕС‚ РїРµСЂРµР·Р°РїРёСЃРё РґСЂСѓРіРёРјРё С„СЂР°РіРјРµРЅС‚Р°РјРё
 		for (int q1 = 0; q1 < fragm_count; q1++)
 		{
 			for (int q2 = 0; q2 < fragm_count; q2++)
@@ -620,51 +621,51 @@ namespace model
 				{
 
 					/**************************************************
-					************       Переходим в КСК       **********
+					************       РџРµСЂРµС…РѕРґРёРј РІ РљРЎРљ       **********
 					**************************************************/
 
 					Tensor O = C[q1][q2][q3].o;
 					Tensor OT = O;
 					OT.Transp();
-					C[q1][q2][q3].d = O*D*OT;//Гипотеза Фойгта
-					C[q1][q2][q3].w = O*W*OT;//Расширенная
+					C[q1][q2][q3].d = O*D*OT;//Р“РёРїРѕС‚РµР·Р° Р¤РѕР№РіС‚Р°
+					C[q1][q2][q3].w = O*W*OT;//Р Р°СЃС€РёСЂРµРЅРЅР°СЏ
 
 					C[q1][q2][q3].sgm = O*C[q1][q2][q3].sgm*OT;
 					C[q1][q2][q3].d_in = O*C[q1][q2][q3].d_in*OT;
 
 
 					/***************************************************
-					***********       Пересчитываем НДС      ***********
+					***********       РџРµСЂРµСЃС‡РёС‚С‹РІР°РµРј РќР”РЎ      ***********
 					***************************************************/
 
 					C[q1][q2][q3].NDScalc();
 
-					if (HARDENING_BASE)			//Базовое упрочнение
+					if (HARDENING_BASE)			//Р‘Р°Р·РѕРІРѕРµ СѓРїСЂРѕС‡РЅРµРЅРёРµ
 					{
 						Base_hardening(&C[q1][q2][q3]);
 					}
 				
-					if (ROTATIONS_TAYLOR)		//Ротации по Тейлору
+					if (ROTATIONS_TAYLOR)		//Р РѕС‚Р°С†РёРё РїРѕ РўРµР№Р»РѕСЂСѓ
 					{
 						Taylor_rotations(&C[q1][q2][q3]);
 					}
 				
-					if (ROTATIONS_TRUSOV && ROTATIONS_HARDENING)	//Ротационное упрочнение
+					if (ROTATIONS_TRUSOV && ROTATIONS_HARDENING)	//Р РѕС‚Р°С†РёРѕРЅРЅРѕРµ СѓРїСЂРѕС‡РЅРµРЅРёРµ
 					{
 						Rotation_hardening(&C[q1][q2][q3]);
 					}
 
-					if (HARDENING_BOUND)	//Зернограничное упрочнение
+					if (HARDENING_BOUND)	//Р—РµСЂРЅРѕРіСЂР°РЅРёС‡РЅРѕРµ СѓРїСЂРѕС‡РЅРµРЅРёРµ
 					{
 						Boundary_hardening(&C[q1][q2][q3]);
 					}
 
-					if (ROTATIONS_TRUSOV)		//Ротации по Трусову
+					if (ROTATIONS_TRUSOV)		//Р РѕС‚Р°С†РёРё РїРѕ РўСЂСѓСЃРѕРІСѓ
 					{
 						Trusov_rotations(&C[q1][q2][q3]);
 					}
 					/**************************************************
-					************       Переходим в ЛСК       **********
+					************       РџРµСЂРµС…РѕРґРёРј РІ Р›РЎРљ       **********
 					**************************************************/
 
 					C[q1][q2][q3].sgm = OT*C[q1][q2][q3].sgm*O;
@@ -674,7 +675,7 @@ namespace model
 		}
 
 
-		if (!REAL_UNIAX && !unload)		//Этот блок нужен исключительно для работы с энергией!
+		if (!REAL_UNIAX && !unload)		//Р­С‚РѕС‚ Р±Р»РѕРє РЅСѓР¶РµРЅ РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅРѕ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ СЌРЅРµСЂРіРёРµР№!
 		{
 			Sgm.setZero();
 			D_in.setZero();
@@ -695,7 +696,7 @@ namespace model
 
 
 		/************************************************************
-		***********	        Прогресс выполнения 	      ***********
+		***********	        РџСЂРѕРіСЂРµСЃСЃ РІС‹РїРѕР»РЅРµРЅРёСЏ 	      ***********
 		************************************************************/
 
 		double progress;
@@ -703,12 +704,12 @@ namespace model
 		{
 			progress = Strain / strain_max * 100.0;
 
-			if (!(cycle_count == 1 || cycle == 0))	//Многоцикловые нагружения
+			if (!(cycle_count == 1 || cycle == 0))	//Р”Р»СЏ РјРЅРѕРіРѕС†РёРєР»РѕРІС‹С… РЅР°РіСЂСѓР¶РµРЅРёР№
 			{
 				progress /= 2.0;
-				if (E.C[0][0] > 0)			//Этот код позволяет корректно
-				{									//отображать прогресс выполнения,
-					if (Sgm.C[0][0] > 0)		//когда на графике петли циклические
+				if (E.C[0][0] > 0)					//Р­С‚РѕС‚ РєРѕРґ РїРѕР·РІРѕР»СЏРµС‚ РєРѕСЂСЂРµРєС‚РЅРѕ
+				{									//РѕС‚РѕР±СЂР°Р¶Р°С‚СЊ РїСЂРѕРіСЂРµСЃСЃ РІС‹РїРѕР»РЅРµРЅРёСЏ,
+					if (Sgm.C[0][0] > 0)			//РєРѕРіРґР° РЅР° РіСЂР°С„РёРєРµ РїРµС‚Р»Рё С†РёРєР»РёС‡РµСЃРєРёРµ
 					{
 						progress += 50.0;
 					}
@@ -732,10 +733,10 @@ namespace model
 		}
 		else
 		{
-			progress = final_stress / Stress * 100.0;
+			progress = final_stress / Stress * 100.0;	//РРЅРґРёРєР°С†РёСЏ РїСЂРё СЂР°Р·РіСЂСѓР·РєРµ
 		}
 
-		int period = unload ? 1 : proc_period;
+		int period = unload ? proc_period/10 : proc_period;
 
 		if (PROC_STEP == period)
 		{
@@ -746,7 +747,7 @@ namespace model
 		}
 		
 		/************************************************************
-		***********	    Запись данных для графиков НДС    ***********
+		***********	    Р—Р°РїРёСЃСЊ РґР°РЅРЅС‹С… РґР»СЏ РіСЂР°С„РёРєРѕРІ РќР”РЎ    ***********
 		************************************************************/
 
 		if ((progress - PLOT_STEP > plot_period || unload) && plot_period > 0)
@@ -761,10 +762,10 @@ namespace model
 				Datastream[0].write((char *)&E.C[0][0], sizeof E.C[0][0]);
 				Datastream[1].write((char *)&Sgm.C[0][0], sizeof Sgm.C[0][0]);
 			}
-			double ActiveSysCount = 0;			//Среднее кол-во активных систем скольжения на шаге
-			double RotEnergy = 0;				//Энергия ротаций на шаге
-			double RotSpeed = 0;				//Средняя скорость вращения на шаге
-			int RotCount = 0;					//Кол-во вращающихся фрагментов
+			double ActiveSysCount = 0;			//РЎСЂРµРґРЅРµРµ РєРѕР»-РІРѕ Р°РєС‚РёРІРЅС‹С… СЃРёСЃС‚РµРј СЃРєРѕР»СЊР¶РµРЅРёСЏ РЅР° С€Р°РіРµ
+			double RotEnergy = 0;				//Р­РЅРµСЂРіРёСЏ СЂРѕС‚Р°С†РёР№ РЅР° С€Р°РіРµ
+			double RotSpeed = 0;				//РЎСЂРµРґРЅСЏСЏ СЃРєРѕСЂРѕСЃС‚СЊ РІСЂР°С‰РµРЅРёСЏ РЅР° С€Р°РіРµ
+			int RotCount = 0;					//РљРѕР»-РІРѕ РІСЂР°С‰Р°СЋС‰РёС…СЃСЏ С„СЂР°РіРјРµРЅС‚РѕРІ
 			double norma = 0;
 			double Mc = 0;
 			double dmc = 0;
@@ -787,12 +788,12 @@ namespace model
 
 						for (int i = 0; i < C[q1][q2][q3].SS_count; i++)
 						{
-							if (C[q1][q2][q3].SS[i].dgm > EPS) ActiveSysCount++;//Подсчёт активных СС
+							if (C[q1][q2][q3].SS[i].dgm > EPS) ActiveSysCount++;//РџРѕРґСЃС‡С‘С‚ Р°РєС‚РёРІРЅС‹С… РЎРЎ
 						}
 
-						if (C[q1][q2][q3].isRotate) RotCount++;		//Подсчёт вращающихся решёток
-						RotEnergy += C[q1][q2][q3].rot_energy;		//Суммирование энергий вращения
-						RotSpeed += C[q1][q2][q3].rot_speed;		//Суммирование скоростей вращения
+						if (C[q1][q2][q3].isRotate) RotCount++;		//РџРѕРґСЃС‡С‘С‚ РІСЂР°С‰Р°СЋС‰РёС…СЃСЏ СЂРµС€С‘С‚РѕРє
+						RotEnergy += C[q1][q2][q3].rot_energy;		//РЎСѓРјРјРёСЂРѕРІР°РЅРёРµ СЌРЅРµСЂРіРёР№ РІСЂР°С‰РµРЅРёСЏ
+						RotSpeed += C[q1][q2][q3].rot_speed;		//РЎСѓРјРјРёСЂРѕРІР°РЅРёРµ СЃРєРѕСЂРѕСЃС‚РµР№ РІСЂР°С‰РµРЅРёСЏ
 						norma += C[q1][q2][q3].norm;
 						Mc += C[q1][q2][q3].rot_Mc;
 						dmc += C[q1][q2][q3].dmc;
@@ -804,7 +805,7 @@ namespace model
 			Mc /= total_fragm_count;
 			dmc /= total_fragm_count;
 			ActiveSysCount /= total_fragm_count;
-			Datastream[4].write((char *)&ActiveSysCount, sizeof ActiveSysCount);//Запись кол-ва активных СС
+			Datastream[4].write((char *)&ActiveSysCount, sizeof ActiveSysCount);//Р—Р°РїРёСЃСЊ РєРѕР»-РІР° Р°РєС‚РёРІРЅС‹С… РЎРЎ
 			if (RotCount != 0)
 			{
 				RotSpeed /= RotCount;
@@ -812,17 +813,17 @@ namespace model
 			else RotSpeed = 0;
 
 			/*******************************************************
-			********* 		   Работа с энергией          **********
+			********* 		   Р Р°Р±РѕС‚Р° СЃ СЌРЅРµСЂРіРёРµР№          **********
 			*******************************************************/
 
-			//Полная энергия деформирования - сумма элементарных энергий на каждом шаге
-			//Элементарная энергия - свёртка напряжений с приращением деформации
-			//Энергия ротаций - момент*приращение угла
+			//РџРѕР»РЅР°СЏ СЌРЅРµСЂРіРёСЏ РґРµС„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ - СЃСѓРјРјР° СЌР»РµРјРµРЅС‚Р°СЂРЅС‹С… СЌРЅРµСЂРіРёР№ РЅР° РєР°Р¶РґРѕРј С€Р°РіРµ
+			//Р­Р»РµРјРµРЅС‚Р°СЂРЅР°СЏ СЌРЅРµСЂРіРёСЏ - СЃРІС‘СЂС‚РєР° РЅР°РїСЂСЏР¶РµРЅРёР№ СЃ РїСЂРёСЂР°С‰РµРЅРёРµРј РґРµС„РѕСЂРјР°С†РёРё
+			//Р­РЅРµСЂРіРёСЏ СЂРѕС‚Р°С†РёР№ - РјРѕРјРµРЅС‚*РїСЂРёСЂР°С‰РµРЅРёРµ СѓРіР»Р°
 
 			Tensor dE = D;
-			dE *= dt;			//Приращение деформации на шаге
+			dE *= dt;			//РџСЂРёСЂР°С‰РµРЅРёРµ РґРµС„РѕСЂРјР°С†РёРё РЅР° С€Р°РіРµ
 
-			double StepEnergy = Sgm.doubleScalMult(dE);	//Полная энергия на шаге
+			double StepEnergy = Sgm.doubleScalMult(dE);	//РџРѕР»РЅР°СЏ СЌРЅРµСЂРіРёСЏ РЅР° С€Р°РіРµ
 
 			TestStream[0] << RotCount << std::endl;
 			TestStream[1] << RotSpeed << std::endl;
@@ -835,7 +836,7 @@ namespace model
 		}
 
 		/************************************************************
-		***********	      Сохранение полюсных фигур	      ***********
+		***********	      РЎРѕС…СЂР°РЅРµРЅРёРµ РїРѕР»СЋСЃРЅС‹С… С„РёРіСѓСЂ	      ***********
 		************************************************************/
 		if (progress - POLUS_STEP > polus_period && polus_period > 0)
 		{
@@ -844,7 +845,7 @@ namespace model
 		}
 
 		/************************************************************
-		***********	       Запись пошаговых данных	      ***********
+		***********	       Р—Р°РїРёСЃСЊ РїРѕС€Р°РіРѕРІС‹С… РґР°РЅРЅС‹С…	      ***********
 		************************************************************/
 		if (CURR_STEP >= DEBUG_START && CURR_STEP <= DEBUG_STOP && DEBUG_STEP == debug_period)
 		{
@@ -859,7 +860,7 @@ namespace model
 
 	void Polycrystall::Fragmentate()
 	{
-		float** sm_matrix = new float*[total_fragm_count];			//Матрица смежности
+		float** sm_matrix = new float*[total_fragm_count];			//РњР°С‚СЂРёС†Р° СЃРјРµР¶РЅРѕСЃС‚Рё
 		for (int i = 0; i < total_fragm_count; i++)
 		{
 			sm_matrix[i] = new float[total_fragm_count];
@@ -879,18 +880,18 @@ namespace model
 			{
 				for (int q3 = 0; q3 < fragm_count; q3++)
 				{
-					int pos1 = get1DPos(q1, q2, q3);				//Позиция первого элемента
+					int pos1 = get1DPos(q1, q2, q3);				//РџРѕР·РёС†РёСЏ РїРµСЂРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
 
 					for (int h = 0; h < surround_count; h++)
 					{
-						int pos2 = C[q1][q2][q3].surrounds[h].position;//Позиция второго элемента
-						//if (pos2 < pos1) continue;			//Раз матрица диагональная - нижнюю половину не нужно отдельно считать
+						int pos2 = C[q1][q2][q3].surrounds[h].position;//РџРѕР·РёС†РёСЏ РІС‚РѕСЂРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
+						//if (pos2 < pos1) continue;			//Р Р°Р· РјР°С‚СЂРёС†Р° РґРёР°РіРѕРЅР°Р»СЊРЅР°СЏ - РЅРёР¶РЅСЋСЋ РїРѕР»РѕРІРёРЅСѓ РЅРµ РЅСѓР¶РЅРѕ РѕС‚РґРµР»СЊРЅРѕ СЃС‡РёС‚Р°С‚СЊ
 						/*if (C[q1][q2][q3].contact[h] == 0)
 						{
-						sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = -1;//Если фрагменты не контактируют
+						sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = -1;//Р•СЃР»Рё С„СЂР°РіРјРµРЅС‚С‹ РЅРµ РєРѕРЅС‚Р°РєС‚РёСЂСѓСЋС‚
 						continue;
 						}
-						else if (sm_matrix[pos1][pos2]==0)//Если ещё не прошли
+						else if (sm_matrix[pos1][pos2]==0)//Р•СЃР»Рё РµС‰С‘ РЅРµ РїСЂРѕС€Р»Рё
 						{
 						sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = (float)rand() / RAND_MAX;
 						}*/
@@ -955,8 +956,8 @@ namespace model
 			}
 			if (cycle_count > 1)
 			{
-				D.C[0][0] = pow(-1, cycle + 1) * tension_component;	//Меняем знак растягивающей компоненты
-				strain_max += strain_max * addition_strain;					//Повышаем предел интенсивности
+				D.C[0][0] = pow(-1, cycle + 1) * tension_component;	//РњРµРЅСЏРµРј Р·РЅР°Рє СЂР°СЃС‚СЏРіРёРІР°СЋС‰РµР№ РєРѕРјРїРѕРЅРµРЅС‚С‹
+				strain_max += strain_max * addition_strain;					//РџРѕРІС‹С€Р°РµРј РїСЂРµРґРµР» РёРЅС‚РµРЅСЃРёРІРЅРѕСЃС‚Рё
 			}
 			if (FRAGMENTATION) Fragmentate();
 		
