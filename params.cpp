@@ -21,7 +21,7 @@ namespace model
 	Tensor gradV;
 	int surround_count = 6;
 	int material_purity = 100;
-	bool read_init_stress;
+	bool read_init_stress = false;
 	
 	int fragm_size_law = 0;
 	double fragm_size_m = 5e-5;
@@ -62,154 +62,97 @@ namespace model
 
 	bool FRAGMENTATION = false;
 
+	int getValue(tinyxml2::XMLElement *rootnode, const char* name, int* var)
+	{
+		const char* title;
+		title = rootnode->FirstChildElement(name)->GetText();
+		*var = atoi(title);
+		return 1;
+	}
+	
+	int getValue(tinyxml2::XMLElement *rootnode, const char* name, double* var)
+	{
+		const char* title;
+		title = rootnode->FirstChildElement(name)->GetText();
+		*var = atof(title);
+		return 1;
+	}
+
+	int getValue(tinyxml2::XMLElement *rootnode, const char* name, bool* var)
+	{
+		const char* title;
+		title = rootnode->FirstChildElement(name)->GetText();
+		*var = (bool) atoi(title);
+		return 1;
+	}
+
 	int ReadParams(const char * filename)
 	{
 		tinyxml2::XMLDocument doc;
 		doc.LoadFile(filename);//Загрузка файла
 
 		tinyxml2::XMLElement *rootnode = doc.FirstChildElement("Parameters");
-		const char* title;
+	//	const char* title;
+	
+		getValue(rootnode, "GrainCount", &fragm_count);
+		getValue(rootnode, "Material", &material);
+		getValue(rootnode, "RandomOrientations", &RAND_ORIENT);
+		getValue(rootnode, "M", &m);
+		getValue(rootnode, "dGamma0", &dgm0);
+		getValue(rootnode, "DeformationLimit", &strain_max);
+		getValue(rootnode, "IntegrationStep", &dt);
+		getValue(rootnode, "RealUniaxial", &REAL_UNIAX);
+		getValue(rootnode, "Symmetrisation", &SYMMETRY);
+		/*Упрочнение*/
+		getValue(rootnode, "HardBase", &HARDENING_BASE);
+		getValue(rootnode, "HardBound", &HARDENING_BOUND);
+		getValue(rootnode, "HardBaseDelta", &HARD_BASE_DELTA);
+		getValue(rootnode, "HardBasePsi", &HARD_BASE_PSI);
+		getValue(rootnode, "HardBaseA", &HARD_BASE_A);
+		getValue(rootnode, "HardBoundK", &HARD_BOUND_K);
+		/*Ротации*/
+		int rt;
+		getValue(rootnode, "Rotate", &rt);
+		if (rt == 0) ROTATIONS_TAYLOR = true;
+		else if (rt == 1) ROTATIONS_TRUSOV = true;
+		getValue(rootnode, "RotateA", &ROT_A);
+		getValue(rootnode, "RotateH", &ROT_H);
+		getValue(rootnode, "RotateLambda", &ROT_L);
+		getValue(rootnode, "RotateMc", &ROT_MC);
+
+		getValue(rootnode, "CycleCount", &cycle_count);
+		getValue(rootnode, "Unloading", &UNLOADING);
+		getValue(rootnode, "SurroundsDegree", &SurroundsGrade);
+		getValue(rootnode, "RotationHardening", &ROTATIONS_HARDENING);
+		getValue(rootnode, "MaterialPurity", &material_purity);
+		getValue(rootnode, "PlotPeriod", &plot_period);
+		getValue(rootnode, "PolusPeriod", &polus_period);
+		getValue(rootnode, "DebugPeriod", &debug_period);
+		getValue(rootnode, "ThreadCount", &thread_count);
+		getValue(rootnode, "FixedOrientations", &fix_orient);
 		
-		title = rootnode->FirstChildElement("GrainCount")->GetText();
-		fragm_count = atoi(title);
-
-		title = rootnode->FirstChildElement("Material")->GetText();
-		material = atoi(title);
-
-		title = rootnode->FirstChildElement("Rotate")->GetText();
-		if (atoi(title) == 0) ROTATIONS_TAYLOR = true;
-		else if (atoi(title) == 1) ROTATIONS_TRUSOV = true;
-
-		title = rootnode->FirstChildElement("RandomOrientations")->GetText();
-		RAND_ORIENT = (bool)atoi(title);
-
-		title = rootnode->FirstChildElement("M")->GetText();
-		m = atoi(title);
-
-		title = rootnode->FirstChildElement("dGamma0")->GetText();
-		dgm0 = atof(title);
-		
-		title = rootnode->FirstChildElement("DeformationLimit")->GetText();
-		strain_max = atof(title);
-
-		title = rootnode->FirstChildElement("IntegrationStep")->GetText();
-		dt = atof(title);
-		
-		title = rootnode->FirstChildElement("RealUniaxial")->GetText();
-		REAL_UNIAX = (bool) atoi(title);
-
-		title = rootnode->FirstChildElement("Symmetrisation")->GetText();
-		SYMMETRY = (bool) atoi(title);
-
-		title = rootnode->FirstChildElement("HardBase")->GetText();
-		HARDENING_BASE = (bool) atoi(title);
-
-		title = rootnode->FirstChildElement("HardBound")->GetText();
-		HARDENING_BOUND = (bool) atoi(title);
-
-		title = rootnode->FirstChildElement("HardBaseDelta")->GetText();
-		HARD_BASE_DELTA = atof(title);
-
-		title = rootnode->FirstChildElement("HardBasePsi")->GetText();
-		HARD_BASE_PSI = atof(title);
-
-		title = rootnode->FirstChildElement("HardBaseA")->GetText();
-		HARD_BASE_A = atof(title);
-
-		title = rootnode->FirstChildElement("HardBoundK")->GetText();
-		HARD_BOUND_K = atof(title);
-
-		title = rootnode->FirstChildElement("RotateA")->GetText();
-		ROT_A = atof(title);
-
-		title = rootnode->FirstChildElement("RotateH")->GetText();
-		ROT_H = atof(title);
-
-		title = rootnode->FirstChildElement("RotateLambda")->GetText();
-		ROT_L = atof(title);
-
-		title = rootnode->FirstChildElement("RotateMc")->GetText();
-		ROT_MC = atof(title);
-
-		title = rootnode->FirstChildElement("CycleCount")->GetText();
-		cycle_count = atoi(title);
-
-		title = rootnode->FirstChildElement("Unloading")->GetText();
-		UNLOADING = (bool) atoi(title);
-
-		title = rootnode->FirstChildElement("SurroundsDegree")->GetText();
-		SurroundsGrade = atoi(title);
-
-		title = rootnode->FirstChildElement("RotationHardening")->GetText();
-		ROTATIONS_HARDENING = (bool) atoi(title);
-
-		title = rootnode->FirstChildElement("MaterialPurity")->GetText();
-		material_purity = atoi(title);
-
-		title = rootnode->FirstChildElement("PlotPeriod")->GetText();
-		plot_period = atof(title);
-
-		title = rootnode->FirstChildElement("PolusPeriod")->GetText();
-		polus_period = atof(title);
-
-		title = rootnode->FirstChildElement("DebugPeriod")->GetText();
-		debug_period = atoi(title);
-
-		title = rootnode->FirstChildElement("ThreadCount")->GetText();
-		thread_count = atoi(title);
-
-		title = rootnode->FirstChildElement("FixedOrientations")->GetText();
-		fix_orient = atoi(title);
-		
+		/*Градиент скорости*/
 		gradV.setZero();
+		getValue(rootnode, "gradV00", &gradV.C[0][0]);
+		getValue(rootnode, "gradV01", &gradV.C[0][1]);
+		getValue(rootnode, "gradV02", &gradV.C[0][2]);
+		getValue(rootnode, "gradV10", &gradV.C[1][0]);
+		getValue(rootnode, "gradV11", &gradV.C[1][1]);
+		getValue(rootnode, "gradV12", &gradV.C[1][2]);
+		getValue(rootnode, "gradV20", &gradV.C[2][0]);
+		getValue(rootnode, "gradV21", &gradV.C[2][1]);
+		getValue(rootnode, "gradV22", &gradV.C[2][2]);
+	
+		getValue(rootnode, "FragmSizeLaw", &fragm_size_law);
+		getValue(rootnode, "FragmSizeM", &fragm_size_m);
+		getValue(rootnode, "FragmSizeDsp", &fragm_size_dsp);
+		getValue(rootnode, "StartWritingDbgInfo", &DEBUG_START);
+		getValue(rootnode, "StopWritingDbgInfo", &DEBUG_STOP);
 		
-		title = rootnode->FirstChildElement("gradV00")->GetText();
-		gradV.C[0][0] = atof(title);
-
-		title = rootnode->FirstChildElement("gradV01")->GetText();
-		gradV.C[0][1] = atof(title);
-
-		title = rootnode->FirstChildElement("gradV02")->GetText();
-		gradV.C[0][2] = atof(title);
-
-		title = rootnode->FirstChildElement("gradV10")->GetText();
-		gradV.C[1][0] = atof(title);
-
-		title = rootnode->FirstChildElement("gradV11")->GetText();
-		gradV.C[1][1] = atof(title);
-
-		title = rootnode->FirstChildElement("gradV12")->GetText();
-		gradV.C[1][2] = atof(title);
-		
-		title = rootnode->FirstChildElement("gradV20")->GetText();
-		gradV.C[2][0] = atof(title);
-
-		title = rootnode->FirstChildElement("gradV21")->GetText();
-		gradV.C[2][1] = atof(title);
-
-		title = rootnode->FirstChildElement("gradV22")->GetText();
-		gradV.C[2][2] = atof(title);
-		
-		title = rootnode->FirstChildElement("FragmSizeLaw")->GetText();
-		fragm_size_law = atoi(title);
-		title = rootnode->FirstChildElement("FragmSizeM")->GetText();
-		fragm_size_m = atof(title);
-		title = rootnode->FirstChildElement("FragmSizeDsp")->GetText();
-		fragm_size_dsp = atof(title);
-
-		title = rootnode->FirstChildElement("StartWritingDbgInfo")->GetText();
-		DEBUG_START = atoi(title);
-		title = rootnode->FirstChildElement("StopWritingDbgInfo")->GetText();
-		DEBUG_STOP = atoi(title);
-		
-		title = rootnode->FirstChildElement("ReadInitStress")->GetText();//TODO: Проверка на NULL
-		read_init_stress = atoi(title);
-
-		title = rootnode->FirstChildElement("SaveSST")->GetText();
-		SST_SAVING = atoi(title);
-		
-		title = rootnode->FirstChildElement("Fragmentation")->GetText();
-		FRAGMENTATION = atoi(title);
+		/*Экспериментальные параметры*/
+		getValue(rootnode, "ReadInitStress", &read_init_stress);
+		getValue(rootnode, "SaveSST", &SST_SAVING);
+		getValue(rootnode, "Fragmentation", &FRAGMENTATION);
 
 		return 0;
 	}
