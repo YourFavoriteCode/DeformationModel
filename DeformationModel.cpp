@@ -1,5 +1,4 @@
 ﻿#include "stdafx.h"
-#define _USE_MATH_DEFINES
 
 #include <fstream>
 #include <iostream>
@@ -15,11 +14,7 @@ using namespace model;
 int _tmain(int argc, _TCHAR* argv[])
 {
 	if (argc == 1) return 1;	//Программа закроется, если вызвана без аргументов
-
-	char* param_file = new char[256];
-	wcstombs(param_file, argv[1], 256);//Получили имя файла с параметрами
-	ReadParams(param_file);		//Считали параметры из файла
-
+	
 	/****************************************************************
 	*********	  Создание несуществующих директорий		*********
 	****************************************************************/
@@ -35,15 +30,18 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		CreateDirectory(L"DBG", NULL);//Для отладочных данных
 	}
-	const int total_fragm_count = (int)pow(fragm_count, 3);	//Общее кол-во фрагментов
-
+	
 	/*****************************************************************
 	********     Интерфейс ввода/вывода параметров модели     ********
 	*****************************************************************/
 	std::cout << " Build on " << __DATE__ << " " << __TIME__ << std::endl;
+	char* param_file = new char[256];
+	wcstombs(param_file, argv[1], 256);//Получили имя файла с параметрами
 	std::cout << " Parameters file: " << param_file << std::endl;
+	if (ReadParams(param_file) == 1) std::cout << " Error in file!" << std::endl;		//Считали параметры из файла
 	delete param_file;//Больше не нужен
-	std::cout << " __________________________________________" << std::endl;
+	std::cout << " ==========================================" << std::endl;
+	const int total_fragm_count = (int)pow(fragm_count, 3);	//Общее кол-во фрагментов
 	std::cout << " Fragments count: " << total_fragm_count << std::endl;
 	std::cout << " Max. strain: " << strain_max << std::endl;
 	std::cout << " Integration step: " << dt << std::endl;
@@ -77,7 +75,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	if (debug_period > 0)
 	{
-		std::cout << " ++++++++++++++DEBUG MODE++++++++++++++" << std::endl;
+		std::cout << " ============= DEBUG MODE =============" << std::endl;
 		std::cout << "       Period: " << debug_period << std::endl;
 		std::cout << "       Start: " << DEBUG_START << std::endl;
 		std::cout << "       Stop: " << DEBUG_STOP << std::endl;
@@ -90,8 +88,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		std::cout << " Reading saved orientations and normals" << std::endl;
 	}
-
-	Polycrystall PC;
+	
+	Polycrystall PC;				//Создание и инициализация поликристалла
 	PC.Init(fragm_count);
 
 	unsigned long t1, t2;			//Отсечки времени
@@ -123,8 +121,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	}
 
-	PC.setParams();
-	PC.MakeStruct();
+	PC.setParams();					//Заполнение всех параметров поликристалла
+	PC.MakeStruct();				//Формирование зёренной структуры
 
 
 
@@ -212,7 +210,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	t2 = clock();
 	std::cout << (t2 - t1) / 1000.0 << " sec" << std::endl;
 
-	PC.OpenFiles();
+	PC.OpenFiles();				//Открытие и очистка файлов для вывода
 	//Сохранение начальных полюсных фигур и ССТ
 	if (polus_period > 0)
 	{
@@ -223,7 +221,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		std::cout << (t2 - t1) / 1000.0 << " sec" << std::endl;
 	}
 
-	{
+	/*{
 		std::ofstream dbg;
 		dbg.open("scal.txt", std::ios_base::out | std::ios_base::trunc);
 		for (int i = 0; i < PC.C[0][0][0].SS_count; i++)
@@ -232,11 +230,11 @@ int _tmain(int argc, _TCHAR* argv[])
 			dbg << sc << " ";
 		}
 		dbg.close();
-	}
+	}*/
 
-	t1 = clock();
-	PC.Deformate();
-	t2 = clock();//Финальная отсечка времени
+	t1 = clock();		//Начальная отсечка времени
+	PC.Deformate();		//Деформирование
+	t2 = clock();		//Финальная отсечка времени
 
 	if (read_init_stress)	//Сохранение остаточных напряжений
 	{
@@ -263,20 +261,20 @@ int _tmain(int argc, _TCHAR* argv[])
 	*********		если она была запущена из неё		********
 	***********************************************************/
 
-	if (isnan(PC.Strain)) std::cout << std::endl << " Calculation ERROR!" << std::endl;
+	if (!isnormal(PC.Strain)) std::cout << std::endl << " Calculation ERROR!" << std::endl;
 	else std::cout << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b" << " Done    " << std::endl;
-	std::cout << " __________________________________________________" << std::endl;
+	std::cout << " ==================================================" << std::endl;
 	std::cout << " Processing time: " << (t2 - t1) / 1000.0 << " sec" << std::endl;
 	std::cout << " Number of steps: " << PC.CURR_STEP << std::endl;
-	if (isnan(PC.Strain))//Если не зафиксированы ошибки - закрытие
+	if (!isnormal(PC.Strain))//Если не зафиксированы ошибки - закрытие
 	{
-		std::cout << " __________________________________________________" << std::endl;
+		std::cout << " ==================================================" << std::endl;
 		std::cout << " Press any key or STOP button to exit...";
 		std::system("title Done");
 		std::cin.get();
 	}
-
-	PC.CloseFiles();
+	
+	PC.CloseFiles();				//Сохранение всех полученных данных
 
 	/************************************************************
 	*******      Передача данных в панель управления      *******

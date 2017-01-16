@@ -6,7 +6,6 @@
 
 namespace model
 {
-	
 	/*****************************************************************
 	*****		Задание значений параметров по умолчанию		******
 	*****************************************************************/
@@ -15,10 +14,11 @@ namespace model
 	bool UNLOADING = false;
 	bool RAND_ORIENT = true;
 	int fix_orient = 0;
-	double dt = 1e-4;
+	double dt = 5e-4;
 	int material = 0;
-	double strain_max = 5e-2;
+	double strain_max = 1e-1;
 	Tensor gradV;
+	
 	int surround_count = 6;
 	int material_purity = 100;
 	bool read_init_stress = false;
@@ -27,13 +27,13 @@ namespace model
 	double fragm_size_m = 5e-5;
 	double fragm_size_dsp = 0;
 
-	int fragm_count = 3;
+	int fragm_count = 4;
 	int cycle_count = 1;
 	int thread_count = 1;
 
 	double plot_period = 2;
-	double polus_period = 20;
-	int debug_period = 1000;
+	double polus_period = 25;
+	int debug_period = 0;
 	int DEBUG_START = 0;
 	int DEBUG_STOP = INT_MAX;
 
@@ -44,10 +44,10 @@ namespace model
 	bool ROTATIONS_TRUSOV = false;
 	bool ROTATIONS_HARDENING = false;
 
-	double ROT_A = 1e-8;
-	double ROT_H = 2e-8;
-	double ROT_L = 3e6;
-	double ROT_MC = 2e5;
+	double ROT_A = 3e-9;
+	double ROT_H = 1e-7;
+	double ROT_L = 10;
+	double ROT_MC = 3e4;
 
 	bool HARDENING_BASE = false;
 	bool HARDENING_BOUND = false;
@@ -62,27 +62,48 @@ namespace model
 
 	bool FRAGMENTATION = false;
 
-	int getValue(tinyxml2::XMLElement *rootnode, const char* name, int* var)
+	int getValue(tinyxml2::XMLElement *rootnode, const char* name, int* var)//Целочисленные
 	{
-		const char* title;
-		title = rootnode->FirstChildElement(name)->GetText();
-		*var = atoi(title);
+		if (rootnode->FirstChildElement(name) != NULL)//Проверка, есть ли в файле такой элемент
+		{
+			const char* title;
+			title = rootnode->FirstChildElement(name)->GetText();
+			*var = atoi(title);
+		}
+		else//Если нет, то предупреждаем и выводим значение по умолчанию
+		{
+			printf(" Parameter <%s> not found. Default value: %d.\n", name, *var);
+		}
 		return 1;
 	}
 	
-	int getValue(tinyxml2::XMLElement *rootnode, const char* name, double* var)
+	int getValue(tinyxml2::XMLElement *rootnode, const char* name, double* var)//Вещественные
 	{
-		const char* title;
-		title = rootnode->FirstChildElement(name)->GetText();
-		*var = atof(title);
+		if (rootnode->FirstChildElement(name) != NULL)//Проверка, есть ли в файле такой элемент
+		{
+			const char* title;
+			title = rootnode->FirstChildElement(name)->GetText();
+			*var = atof(title);
+		}
+		else//Если нет, то предупреждаем и выводим значение по умолчанию
+		{
+			printf(" Parameter <%s> not found. Default value: %e.\n", name, *var);
+		}
 		return 1;
 	}
 
-	int getValue(tinyxml2::XMLElement *rootnode, const char* name, bool* var)
+	int getValue(tinyxml2::XMLElement *rootnode, const char* name, bool* var)//Логические
 	{
-		const char* title;
-		title = rootnode->FirstChildElement(name)->GetText();
-		*var = (bool) atoi(title);
+		if (rootnode->FirstChildElement(name) != NULL)//Проверка, есть ли в файле такой элемент
+		{
+			const char* title;
+			title = rootnode->FirstChildElement(name)->GetText();
+			*var = (bool)atoi(title);
+		}
+		else//Если нет, то предупреждаем и выводим значение по умолчанию
+		{
+			printf(" Parameter <%s> not found. Default value: %d.\n", name,*var);
+		}
 		return 1;
 	}
 
@@ -92,8 +113,7 @@ namespace model
 		doc.LoadFile(filename);//Загрузка файла
 
 		tinyxml2::XMLElement *rootnode = doc.FirstChildElement("Parameters");
-	//	const char* title;
-	
+		if (rootnode == NULL) return 1;
 		getValue(rootnode, "GrainCount", &fragm_count);
 		getValue(rootnode, "Material", &material);
 		getValue(rootnode, "RandomOrientations", &RAND_ORIENT);
