@@ -1,10 +1,10 @@
-#ifndef __FRAGMENTATION_H 
+п»ї#ifndef __FRAGMENTATION_H 
 #define __FRAGMENTATION_H
 
 #include "MathCore.h"
 
 /*
-Работа с фрагментацией
+Р Р°Р±РѕС‚Р° СЃ С„СЂР°РіРјРµРЅС‚Р°С†РёРµР№
 */
 namespace model
 {
