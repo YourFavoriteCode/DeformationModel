@@ -2,6 +2,7 @@
 #define __FRAGMENTATION_H
 
 #include "MathCore.h"
+
 /*
 Работа с фрагментацией
 */

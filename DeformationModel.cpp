@@ -38,103 +38,103 @@ int _tmain(int argc, _TCHAR* argv[])
 	char* param_file = new char[256];
 	wcstombs(param_file, argv[1], 256);//Получили имя файла с параметрами
 	std::cout << " Parameters file: " << param_file << std::endl;
-	if (ReadParams(param_file) == 1) std::cout << " Error in file!" << std::endl;		//Считали параметры из файла
+	if (prms::ReadParams(param_file) == 1) std::cout << " Error in file!" << std::endl;		//Считали параметры из файла
 	delete param_file;//Больше не нужен
 	std::cout << " ==========================================" << std::endl;
-	const int total_fragm_count = (int)pow(fragm_count, 3);	//Общее кол-во фрагментов
+	const int total_fragm_count = (int)pow(prms::fragm_count, 3);	//Общее кол-во фрагментов
 	std::cout << " Fragments count: " << total_fragm_count << std::endl;
-	std::cout << " Max. strain: " << strain_max << std::endl;
-	std::cout << " Integration step: " << dt << std::endl;
-	if (ROTATIONS_HARDENING)
+	std::cout << " Max. strain: " << prms::strain_max << std::endl;
+	std::cout << " Integration step: " << prms::dt << std::endl;
+	if (prms::ROTATIONS_HARDENING)
 	{
 		std::cout << " Using rotation hardening model" << std::endl;
 	}
-	if (ROTATIONS_TAYLOR)
+	if (prms::ROTATIONS_TAYLOR)
 	{
 		std::cout << " Using Taylor's rotation model" << std::endl;
 	}
-	if (ROTATIONS_TRUSOV)
+	if (prms::ROTATIONS_TRUSOV)
 	{
 		std::cout << " Using Trusov's rotation model" << std::endl;
-		std::cout << "       A: " << ROT_A << std::endl;
-		std::cout << "       H: " << ROT_H << std::endl;
-		std::cout << "       L: " << ROT_L << std::endl;
-		std::cout << "       MC: " << ROT_MC << std::endl;
+		std::cout << "       A: " << prms::ROT_A << std::endl;
+		std::cout << "       H: " << prms::ROT_H << std::endl;
+		std::cout << "       L: " << prms::ROT_L << std::endl;
+		std::cout << "       MC: " << prms::ROT_MC << std::endl;
 	}
-	if (HARDENING_BASE)
+	if (prms::HARDENING_BASE)
 	{
 		std::cout << " Using basic hardening" << std::endl;
-		std::cout << "       A: " << HARD_BASE_A << std::endl;
-		std::cout << "       Delta: " << HARD_BASE_DELTA << std::endl;
-		std::cout << "       Psi: " << HARD_BASE_PSI << std::endl;
+		std::cout << "       A: " << prms::HARD_BASE_A << std::endl;
+		std::cout << "       Delta: " << prms::HARD_BASE_DELTA << std::endl;
+		std::cout << "       Psi: " << prms::HARD_BASE_PSI << std::endl;
 	}
-	if (HARDENING_BOUND)
+	if (prms::HARDENING_BOUND)
 	{
 		std::cout << " Using boundary hardening" << std::endl;
-		std::cout << "       K: " << HARD_BOUND_K << std::endl;
+		std::cout << "       K: " << prms::HARD_BOUND_K << std::endl;
 	}
-	if (debug_period > 0)
+	if (prms::debug_period > 0)
 	{
 		std::cout << " ============= DEBUG MODE =============" << std::endl;
-		std::cout << "       Period: " << debug_period << std::endl;
-		std::cout << "       Start: " << DEBUG_START << std::endl;
-		std::cout << "       Stop: " << DEBUG_STOP << std::endl;
+		std::cout << "       Period: " << prms::debug_period << std::endl;
+		std::cout << "       Start: " << prms::DEBUG_START << std::endl;
+		std::cout << "       Stop: " << prms::DEBUG_STOP << std::endl;
 	}
-	if (fix_orient == 1)
+	if (prms::fix_orient == 1)
 	{
 		std::cout << " Saving current orientations and normals" << std::endl;
 	}
-	if (fix_orient == 2)
+	if (prms::fix_orient == 2)
 	{
 		std::cout << " Reading saved orientations and normals" << std::endl;
 	}
 	
 	Polycrystall PC;				//Создание и инициализация поликристалла
-	PC.Init(fragm_count);
+	PC.Init(prms::fragm_count);
 
 	unsigned long t1, t2;			//Отсечки времени
 
 	std::cout << " Initializing all fragments... ";
 	t1 = clock();
 
-	PC.D = gradV.getSymmetryPart();
-	PC.W = gradV.getAntiSymmetryPart();
+	PC.D = prms::gradV.getSymmetryPart();
+	PC.W = prms::gradV.getAntiSymmetryPart();
 
 	std::srand(time(NULL));
 
-	switch (SurroundsGrade)			//Степень учёта соседних элементов
+	switch (prms::SurroundsGrade)			//Степень учёта соседних элементов
 	{
 	case 0:
 	{
-		surround_count = 6;			//Обычный уровень
+		prms::surround_count = 6;			//Обычный уровень
 		break;
 	}
 	case 1:
 	{
-		surround_count = 18;		//Повышенный уровень
+		prms::surround_count = 18;		//Повышенный уровень
 		break;
 	}
 	case 2:
 	{
-		surround_count = 26;		//Самый высокий уровень
+		prms::surround_count = 26;		//Самый высокий уровень
 		break;
 	}
 	}
 
 	PC.setParams();					//Заполнение всех параметров поликристалла
 	PC.MakeStruct();				//Формирование зёренной структуры
+	PC.MakeGrains();
 
 
-
-	if (fix_orient == 2)	//Считывание записанных ориентаций
+	if (prms::fix_orient == 2)	//Считывание записанных ориентаций
 	{
 		std::ifstream StreamO("DBG\\o.txt", std::ios_base::in);
 		std::ifstream StreamNorm("DBG\\Norm.txt", std::ios_base::in);
-		for (int q1 = 0; q1 < fragm_count; q1++)
+		for (int q1 = 0; q1 < prms::fragm_count; q1++)
 		{
-			for (int q2 = 0; q2 < fragm_count; q2++)
+			for (int q2 = 0; q2 < prms::fragm_count; q2++)
 			{
-				for (int q3 = 0; q3 < fragm_count; q3++)
+				for (int q3 = 0; q3 < prms::fragm_count; q3++)
 				{
 					for (int i = 0; i < DIM; i++)	//Считываем значения ориентационных тензоров
 					{
@@ -143,7 +143,7 @@ int _tmain(int argc, _TCHAR* argv[])
 							StreamO >> PC.C[q1][q2][q3].o.C[i][j];
 						}
 					}
-					for (int h = 0; h < surround_count; h++)//Считываем значения нормалей
+					for (int h = 0; h < prms::surround_count; h++)//Считываем значения нормалей
 					{
 						for (int i = 0; i < DIM; i++)
 						{
@@ -157,18 +157,18 @@ int _tmain(int argc, _TCHAR* argv[])
 		StreamNorm.close();
 	}
 
-	if (fix_orient == 1)//Запоминание начальных ориентаций
+	if (prms::fix_orient == 1)//Запоминание начальных ориентаций
 	{
 		std::ofstream StreamO("DBG\\o.txt", std::ios_base::out | std::ios_base::trunc);
 		std::ofstream StreamNorm("DBG\\Norm.txt", std::ios_base::out | std::ios_base::trunc);
-		for (int q1 = 0; q1 < fragm_count; q1++)
+		for (int q1 = 0; q1 < prms::fragm_count; q1++)
 		{
-			for (int q2 = 0; q2 < fragm_count; q2++)
+			for (int q2 = 0; q2 < prms::fragm_count; q2++)
 			{
-				for (int q3 = 0; q3 < fragm_count; q3++)
+				for (int q3 = 0; q3 < prms::fragm_count; q3++)
 				{
 					WriteDebugInfo(StreamO, PC.C[q1][q2][q3].o.C);//Записываем значения тензоров ориентации
-					for (int h = 0; h < surround_count; h++)//Записываем значения нормалей
+					for (int h = 0; h < prms::surround_count; h++)//Записываем значения нормалей
 					{
 						for (int i = 0; i < DIM; i++)
 						{
@@ -183,15 +183,15 @@ int _tmain(int argc, _TCHAR* argv[])
 		StreamNorm.close();
 	}
 
-	if (read_init_stress)	//Считывание остаточных напряжений
+	if (prms::read_init_stress)	//Считывание остаточных напряжений
 	{
 		std::ifstream StreamSgm("DBG\\sgm.txt", std::ios_base::in);
 
-		for (int q1 = 0; q1 < fragm_count; q1++)
+		for (int q1 = 0; q1 < prms::fragm_count; q1++)
 		{
-			for (int q2 = 0; q2 < fragm_count; q2++)
+			for (int q2 = 0; q2 < prms::fragm_count; q2++)
 			{
-				for (int q3 = 0; q3 < fragm_count; q3++)
+				for (int q3 = 0; q3 < prms::fragm_count; q3++)
 				{
 					for (int i = 0; i < DIM; i++)	//Считываем значения тензоров
 					{
@@ -212,7 +212,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	PC.OpenFiles();				//Открытие и очистка файлов для вывода
 	//Сохранение начальных полюсных фигур и ССТ
-	if (polus_period > 0)
+	if (prms::polus_period > 0)
 	{
 		std::cout << " Saving pole figures... ";
 		t1 = clock();
@@ -236,14 +236,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	PC.Deformate();		//Деформирование
 	t2 = clock();		//Финальная отсечка времени
 
-	if (read_init_stress)	//Сохранение остаточных напряжений
+	if (prms::read_init_stress)	//Сохранение остаточных напряжений
 	{
 		PC.dbgstream[3].open("DBG\\sgm.txt", std::ios_base::out | std::ios_base::trunc);
-		for (int q1 = 0; q1 < fragm_count; q1++)
+		for (int q1 = 0; q1 < prms::fragm_count; q1++)
 		{
-			for (int q2 = 0; q2 < fragm_count; q2++)
+			for (int q2 = 0; q2 < prms::fragm_count; q2++)
 			{
-				for (int q3 = 0; q3 < fragm_count; q3++)
+				for (int q3 = 0; q3 < prms::fragm_count; q3++)
 				{
 
 					WriteDebugInfo(PC.dbgstream[3], PC.C[q1][q2][q3].sgm.C);

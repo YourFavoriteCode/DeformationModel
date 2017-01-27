@@ -22,8 +22,8 @@ namespace model
 
 		int cycle;
 		int CURR_STEP;				//Текущий шаг интегрирования
-		int PLOT_STEP;				//Шаг сохранения графиков
-		int POLUS_STEP;				//Шаг сохранения ПФ
+		double PLOT_STEP;			//Шаг сохранения графиков
+		double POLUS_STEP;			//Шаг сохранения ПФ
 		int PROC_STEP;				//Шаг отображения прогресса
 		int DEBUG_STEP;				//Шаг записи отладочных данных
 		int proc_period;			//Период обновления процента выполнения
@@ -46,6 +46,7 @@ namespace model
 
 		void Init(int);				//Выделение памяти под зёрна
 		void MakeStruct();			//Распределение нормалей и фасеток всех фрагментов
+		void MakeGrains();			//Распределение ориентаций фрагментов, чтобы получились приемлемые зёрна
 		void setParams();			//Распределение параметров фрагментов
 		void Deformate();			//Деформирование поликристалла
 		
@@ -55,8 +56,8 @@ namespace model
 		void OpenFiles();			//Открытие всех файлов для записи
 		void CloseFiles();			//Закрытие всех файлов для записи
 
-		int getNumArr(int, int, int);	//Возвращает уникальный номер фрагмента в общей структуре
-		void getMultyNumArr(int, int&, int&, int&);	//Возвращает позицию фрагмента в трёхмерном массиве 
+		//int get1DPos(int, int, int);	//Возвращает уникальный номер фрагмента в общей структуре
+		//void get3DPos(int, int*, int*, int*);	//Возвращает позицию фрагмента в трёхмерном массиве 
 	private:
 		void Load(bool unload);		//Нагружение поликристалла
 	};

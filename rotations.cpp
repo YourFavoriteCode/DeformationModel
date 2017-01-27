@@ -66,7 +66,7 @@ namespace model
 		if (f->isRotate)
 		{
 			f->rot_speed = dFi;
-			dFi *= dt;			//Получаем угол поворота
+			dFi *= prms::dt;			//Получаем угол поворота
 			f->sum_angle += dFi;
 			e.Normalize();
 			Rotate(f, dFi, e);
@@ -88,7 +88,7 @@ namespace model
 			double vol = pow(f->size, 3);//Объём элемента
 			double dmc = HardRotK1 / vol * exp( - HardRotK2 * f->sum_angle);//Скорость приращения
 			f->dmc = dmc;
-			f->rot_Mc += dmc*dt;//Приращение критического момента
+			f->rot_Mc += dmc*prms::dt;//Приращение критического момента
 		}
 	}
 
@@ -96,7 +96,7 @@ namespace model
 	{
 		Vector dM;						//Производная вектор-момента
 		double S = f->size*f->size;		//Площадь фасетки (полная)
-		for (int h = 0; h < surround_count; h++)//Пробегаем по всем соседям фрагмента
+		for (int h = 0; h < prms::surround_count; h++)//Пробегаем по всем соседям фрагмента
 		{
 			if (f->contact[h] == 0) continue;//Если нет контакта - пропускаем
 			Tensor d_in1, d_in2;
@@ -132,7 +132,7 @@ namespace model
 		}
 		dM /= f->volume;
 		double dMnorm = dM.getNorm();
-		Vector M = f->moment + dM*dt;
+		Vector M = f->moment + dM*prms::dt;
 		f->moment = M;
 		double norm = M.getNorm();
 		
@@ -160,7 +160,7 @@ namespace model
 			Vector e = M;					//Ось вращения решётки сонаправлена с вектором момента
 			e.Normalize();
 			f->rot_speed = dFi;
-			dFi *= dt;
+			dFi *= prms::dt;
 			f->sum_angle += dFi;		//Накопленный угол вращения увеличивается
 			Rotate(f, dFi, e);			//Вращение решётки
 			f->rot_energy = norm*dFi;	//Считаем энергию ротаций

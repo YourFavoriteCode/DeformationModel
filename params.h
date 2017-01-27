@@ -3,7 +3,7 @@
 
 #include "MathCore.h"
 
-namespace model
+namespace prms
 {
 	/********************************************************
 	**********   Различные параметры нагружения   ***********
@@ -12,7 +12,7 @@ namespace model
 	extern bool UNLOADING;					//Упругая разгрузка
 	extern double strain_max;				//Предел интенсивности деформаций
 	extern int cycle_count;					//Кол-во циклов нагружения
-	extern Tensor gradV;					//Градиент места
+	extern model::Tensor gradV;					//Градиент места
 
 	/********************************************************
 	**********		   Прочие параметры			 ************
@@ -80,6 +80,7 @@ namespace model
 	********************************************************/
 
 	extern bool FRAGMENTATION;
+	extern int Grain_size;
 
 	int ReadParams(const char *);			//Считывание параметров из файла
 

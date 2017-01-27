@@ -4,7 +4,7 @@
 #include "params.h"
 #include "TinyXML\tinyxml2.h"
 
-namespace model
+namespace prms
 {
 	/*****************************************************************
 	*****		Задание значений параметров по умолчанию		******
@@ -17,7 +17,7 @@ namespace model
 	double dt = 5e-4;
 	int material = 0;
 	double strain_max = 1e-1;
-	Tensor gradV;
+	model::Tensor gradV;
 	
 	int surround_count = 6;
 	int material_purity = 100;
@@ -61,6 +61,7 @@ namespace model
 	bool SST_SAVING = false;
 
 	bool FRAGMENTATION = false;
+	int Grain_size = 3;
 
 	int getValue(tinyxml2::XMLElement *rootnode, const char* name, int* var)//Целочисленные
 	{
@@ -173,6 +174,7 @@ namespace model
 		getValue(rootnode, "ReadInitStress", &read_init_stress);
 		getValue(rootnode, "SaveSST", &SST_SAVING);
 		getValue(rootnode, "Fragmentation", &FRAGMENTATION);
+		getValue(rootnode, "GrainSize", &Grain_size);
 
 		return 0;
 	}

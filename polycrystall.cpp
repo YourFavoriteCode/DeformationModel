@@ -1,6 +1,5 @@
 ﻿#include "stdafx.h"
 #include <cmath>
-#include <cstdlib>
 #include <omp.h>
 #include <iostream>
 #include <fstream>
@@ -63,7 +62,7 @@ namespace model
 		Datastream[4].open("Plot\\ActiveSS.dat", std::ios_base::out | std::ios_base::trunc | std::ios::binary);
 
 		dbgstream = new std::ofstream[file_count];
-		if (debug_period > 0)				//Открытие файлов для отладочных данных
+		if (prms::debug_period > 0)				//Открытие файлов для отладочных данных
 		{
 			dbgstream[0].open("DBG\\o.txt", std::ios_base::out | std::ios_base::trunc);
 			dbgstream[1].open("DBG\\e.txt", std::ios_base::out | std::ios_base::trunc);
@@ -103,7 +102,7 @@ namespace model
 			TestStream[i].close();
 		}
 
-		if (debug_period > 0)
+		if (prms::debug_period > 0)
 		{
 			for (int i = 0; i < file_count; i++)
 			{
@@ -138,25 +137,25 @@ namespace model
 				{
 					//Задание материала 
 					int another_material;//Примесная фаза
-					another_material = (material == 1) ? 0 : 1;
+					another_material = (prms::material == 1) ? 0 : 1;
 
 					int a = (int)(((double)rand() / RAND_MAX) * 100);//На всё воля божья
-					if (a <= material_purity)
+					if (a <= prms::material_purity)
 					{
-						C[q1][q2][q3].setMaterialParams(material);
+						C[q1][q2][q3].setMaterialParams(prms::material);
 					}
 					else
 					{
 						C[q1][q2][q3].setMaterialParams(another_material);
 					}
 
-					C[q1][q2][q3].rot_Mc = ROT_MC;	//Раздача начальных критических моментов
-					C[q1][q2][q3].rot_A = ROT_A;	//и параметров модели ротаций
-					C[q1][q2][q3].rot_H = ROT_H;
-					C[q1][q2][q3].rot_L = ROT_L;
+					C[q1][q2][q3].rot_Mc = prms::ROT_MC;	//Раздача начальных критических моментов
+					C[q1][q2][q3].rot_A = prms::ROT_A;	//и параметров модели ротаций
+					C[q1][q2][q3].rot_H = prms::ROT_H;
+					C[q1][q2][q3].rot_L = prms::ROT_L;
 					C[q1][q2][q3].position = get1DPos(q1, q2, q3);//Получение порядкового номера фрагмента
 
-					if (RAND_ORIENT)//Получение ориентационного тензора (случайный равномерный закон распределения)
+					if (prms::RAND_ORIENT)//Получение ориентационного тензора (случайный равномерный закон распределения)
 					{
 						double a = ((double)rand() / RAND_MAX) * (PI);
 						double g = ((double)rand() / RAND_MAX) * (PI);
@@ -169,37 +168,37 @@ namespace model
 						C[q1][q2][q3].o.setUnit();
 					}
 					//Задание размеров фрагментов
-					switch (fragm_size_law)
+					switch (prms::fragm_size_law)
 					{
 					case 0://Равномерное
 					{
-						C[q1][q2][q3].size = UniformDistrib(fragm_size_m, fragm_size_dsp);
+						C[q1][q2][q3].size = UniformDistrib(prms::fragm_size_m, prms::fragm_size_dsp);
 						break;
 					}
 					case 1://Нормальное
 					{
-						C[q1][q2][q3].size = NormalDistrib(fragm_size_m, fragm_size_dsp);
+						C[q1][q2][q3].size = NormalDistrib(prms::fragm_size_m, prms::fragm_size_dsp);
 						break;
 					}
 					case 2://Логнормальное
 					{
-						C[q1][q2][q3].size = LogNormalDistrib(fragm_size_m, fragm_size_dsp);
+						C[q1][q2][q3].size = LogNormalDistrib(prms::fragm_size_m, prms::fragm_size_dsp);
 						break;
 					}
 					case 3://Показательное
 					{
-						C[q1][q2][q3].size = ExpDistrib(fragm_size_m);//Только один параметр
+						C[q1][q2][q3].size = ExpDistrib(prms::fragm_size_m);//Только один параметр
 						break;
 					}
 					}
 					C[q1][q2][q3].volume = pow(C[q1][q2][q3].size, 3);	//Объём фрагмента
 					
 					//Выделение памяти под массивы, необходимые для работы с окружением
-					C[q1][q2][q3].surrounds = new Fragment[surround_count];
-					C[q1][q2][q3].normals = new Vector[surround_count];
-					C[q1][q2][q3].contact = new int[surround_count];
+					C[q1][q2][q3].surrounds = new Fragment[prms::surround_count];
+					C[q1][q2][q3].normals = new Vector[prms::surround_count];
+					C[q1][q2][q3].contact = new int[prms::surround_count];
 
-					for (int h = 0; h < surround_count; h++)
+					for (int h = 0; h < prms::surround_count; h++)
 					{
 						C[q1][q2][q3].contact[h] = -1;		//Изначально контакт не задан
 					}
@@ -217,7 +216,7 @@ namespace model
 				for (int q3 = 0; q3 < fragm_count; q3++)
 				{
 
-					for (int h = 0; h < surround_count; h++)
+					for (int h = 0; h < prms::surround_count; h++)
 					{
 						//Если контакт уже был задан - пропускаем
 						if (C[q1][q2][q3].contact[h] != -1) continue;
@@ -467,14 +466,14 @@ namespace model
 						else if (h < 14) C[q1][q2][q3].contact[h] = 3;	//Контакт на вершине октаэдра
 						else C[q1][q2][q3].contact[h] = 2;				//Контакт на ребре
 					}
-					if (surround_count > 6)	//Уменьшение объёма из-за отсечений
+					if (prms::surround_count > 6)	//Уменьшение объёма из-за отсечений
 					{
 						double a = C[q1][q2][q3].size * 0.1;			//Длина срезанной части вдоль ребра
 						double vol_edge = a*a*C[q1][q2][q3].size / 2.0;	//Объём, срезанный рёбрами
 						double vol_vertex = a*a*a / SQRT3;				//Объём, срезанный вершинами
 						int cut_edge = 0;		//Кол-во срезанных рёбер
 						int cut_vertex = 0;		//Кол-во срезанных вершин
-						for (int h = 6; h < surround_count; h++)
+						for (int h = 6; h < prms::surround_count; h++)
 						{
 							if (C[q1][q2][q3].contact[h] != 0)
 							{
@@ -499,7 +498,7 @@ namespace model
 				for (int q3 = 0; q3 < fragm_count; q3++)
 				{
 					GetPoleFig(&C[q1][q2][q3]);
-					if (SST_SAVING) GetSST(&C[q1][q2][q3]);
+					if (prms::SST_SAVING) GetSST(&C[q1][q2][q3]);
 				}
 			}
 		}
@@ -550,7 +549,7 @@ namespace model
 	void Polycrystall::Load(bool unload)
 	{
 		/*Параметр unload включает разгрузку представительного объёма*/
-		if (REAL_UNIAX || unload)	//Одноосное растяжение
+		if (prms::REAL_UNIAX || unload)	//Одноосное растяжение
 		{
 			//Осреднение
 			P.setZero();
@@ -576,17 +575,17 @@ namespace model
 			D = !unload ? TensionStrainCalc(P, D_in, D.C[0][0]) : UnloadingStrainCalc(P, D_in, Sgm, lam);
 
 			Tensor b = D;	//Вычисление интенсивности деформаций
-			b *= dt;
+			b *= prms::dt;
 			E += b;
-			Tensor buf = E;
-			Strain = E.doubleScalMult(buf);
+		//	Tensor buf = E;
+			Strain = E.doubleScalMult(E);
 			Strain = SQRT2_3*sqrt(Strain);
 
 			dSgm = TensionStressCalc(P, D_in, D);//Вычисление интенсивности напряжений
-			dSgm *= dt;				//Приращение напряжений на шаге
+			dSgm *= prms::dt;				//Приращение напряжений на шаге
 			Sgm += dSgm;
-			buf = Sgm;
-			Stress = Sgm.doubleScalMult(buf);
+		//	buf = Sgm;
+			Stress = Sgm.doubleScalMult(Sgm);
 			Stress = SQRT3_2*sqrt(Stress);
 		}
 		else
@@ -639,27 +638,27 @@ namespace model
 
 					C[q1][q2][q3].NDScalc();
 
-					if (HARDENING_BASE)			//Базовое упрочнение
+					if (prms::HARDENING_BASE)			//Базовое упрочнение
 					{
 						Base_hardening(&C[q1][q2][q3]);
 					}
 				
-					if (ROTATIONS_TAYLOR)		//Ротации по Тейлору
+					if (prms::ROTATIONS_TAYLOR)		//Ротации по Тейлору
 					{
 						Taylor_rotations(&C[q1][q2][q3]);
 					}
 				
-					if (ROTATIONS_TRUSOV && ROTATIONS_HARDENING)	//Ротационное упрочнение
+					if (prms::ROTATIONS_TRUSOV && prms::ROTATIONS_HARDENING)	//Ротационное упрочнение
 					{
 						Rotation_hardening(&C[q1][q2][q3]);
 					}
 
-					if (HARDENING_BOUND)	//Зернограничное упрочнение
+					if (prms::HARDENING_BOUND)	//Зернограничное упрочнение
 					{
 						Boundary_hardening(&C[q1][q2][q3]);
 					}
 
-					if (ROTATIONS_TRUSOV)		//Ротации по Трусову
+					if (prms::ROTATIONS_TRUSOV)		//Ротации по Трусову
 					{
 						Trusov_rotations(&C[q1][q2][q3]);
 					}
@@ -674,7 +673,7 @@ namespace model
 		}
 
 
-		if (!REAL_UNIAX && !unload)		//Этот блок нужен исключительно для работы с энергией!
+		if (!prms::REAL_UNIAX && !unload)		//Этот блок нужен исключительно для работы с энергией!
 		{
 			Sgm.setZero();
 			D_in.setZero();
@@ -701,9 +700,9 @@ namespace model
 		double progress;
 		if (!unload)
 		{
-			progress = Strain / strain_max * 100.0;
+			progress = Strain / prms::strain_max * 100.0;
 
-			if (!(cycle_count == 1 || cycle == 0))	//Для многоцикловых нагружений
+			if (!(prms::cycle_count == 1 || cycle == 0))	//Для многоцикловых нагружений
 			{
 				progress /= 2.0;
 				if (E.C[0][0] > 0)					//Этот код позволяет корректно
@@ -749,9 +748,9 @@ namespace model
 		***********	    Запись данных для графиков НДС    ***********
 		************************************************************/
 
-		if ((progress - PLOT_STEP > plot_period || unload) && plot_period > 0)
+		if ((progress - PLOT_STEP > prms::plot_period || unload) && prms::plot_period > 0)
 		{
-			if (!REAL_UNIAX && !unload)
+			if (!prms::REAL_UNIAX && !unload)
 			{
 				Datastream[0].write((char *)&Strain, sizeof Strain);
 				Datastream[1].write((char *)&Stress, sizeof Stress);
@@ -774,7 +773,7 @@ namespace model
 				{
 					for (int q3 = 0; q3 < fragm_count; q3++)
 					{
-						if (!REAL_UNIAX && !unload)
+						if (!prms::REAL_UNIAX && !unload)
 						{
 							Datastream[2].write((char *)&C[q1][q2][q3].strain, sizeof C[q1][q2][q3].strain);
 							Datastream[3].write((char *)&C[q1][q2][q3].stress, sizeof C[q1][q2][q3].stress);
@@ -820,7 +819,7 @@ namespace model
 			//Энергия ротаций - момент*приращение угла
 
 			Tensor dE = D;
-			dE *= dt;			//Приращение деформации на шаге
+			dE *= prms::dt;			//Приращение деформации на шаге
 
 			double StepEnergy = Sgm.doubleScalMult(dE);	//Полная энергия на шаге
 
@@ -837,7 +836,7 @@ namespace model
 		/************************************************************
 		***********	      Сохранение полюсных фигур	      ***********
 		************************************************************/
-		if (progress - POLUS_STEP > polus_period && polus_period > 0)
+		if (progress - POLUS_STEP > prms::polus_period && prms::polus_period > 0)
 		{
 			SavePoleFig();
 			POLUS_STEP = progress;
@@ -846,105 +845,41 @@ namespace model
 		/************************************************************
 		***********	       Запись пошаговых данных	      ***********
 		************************************************************/
-		if (CURR_STEP >= DEBUG_START && CURR_STEP <= DEBUG_STOP && DEBUG_STEP == debug_period)
+		if (CURR_STEP >= prms::DEBUG_START && CURR_STEP <= prms::DEBUG_STOP && DEBUG_STEP == prms::debug_period)
 		{
 			DEBUG_STEP = 0;
 			SaveDbgInfo();
 		}
 		CURR_STEP++;
 		PROC_STEP++;
-		if (CURR_STEP >= DEBUG_START && CURR_STEP <= DEBUG_STOP) DEBUG_STEP++;
+		if (CURR_STEP >= prms::DEBUG_START && CURR_STEP <= prms::DEBUG_STOP) DEBUG_STEP++;
 
 	}
 
-	void Polycrystall::Fragmentate()
-	{
-		float** sm_matrix = new float*[total_fragm_count];			//Матрица смежности
-		for (int i = 0; i < total_fragm_count; i++)
-		{
-			sm_matrix[i] = new float[total_fragm_count];
-		}
-
-		for (int i = 0; i < total_fragm_count; i++)
-		{
-			for (int j = 0; j < total_fragm_count; j++)
-			{
-				sm_matrix[i][j] = -1;
-			}
-		}
-
-		for (int q1 = 0; q1 < fragm_count; q1++)
-		{
-			for (int q2 = 0; q2 < fragm_count; q2++)
-			{
-				for (int q3 = 0; q3 < fragm_count; q3++)
-				{
-					int pos1 = get1DPos(q1, q2, q3);				//Позиция первого элемента
-
-					for (int h = 0; h < surround_count; h++)
-					{
-						int pos2 = C[q1][q2][q3].surrounds[h].position;//Позиция второго элемента
-						//if (pos2 < pos1) continue;			//Раз матрица диагональная - нижнюю половину не нужно отдельно считать
-						/*if (C[q1][q2][q3].contact[h] == 0)
-						{
-						sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = -1;//Если фрагменты не контактируют
-						continue;
-						}
-						else if (sm_matrix[pos1][pos2]==0)//Если ещё не прошли
-						{
-						sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = (float)rand() / RAND_MAX;
-						}*/
-						if (pos1 < pos2) sm_matrix[pos1][pos2] = C[q1][q2][q3].DisorientMeasure(h);
-						//sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = C[q1][q2][q3].contact[h];
-
-						//if (pos1<pos2)sm_matrix[pos1][pos2] = C[q1][q2][q3].surrounds[h].position;
-					}
-
-
-				}
-			}
-		}
-		std::ofstream MatrStream("DBG\\SmMatrix.txt", std::ios_base::out | std::ios_base::trunc);
-		for (int i = 0; i < total_fragm_count; i++)
-		{
-			for (int j = 0; j < total_fragm_count; j++)
-			{
-				MatrStream << sm_matrix[i][j] << " ";
-			}
-			MatrStream << std::endl;
-		}
-		MatrStream.close();
-
-		for (int i = 0; i < total_fragm_count; i++)
-		{
-			delete[] sm_matrix[i];
-		}
-		delete[]sm_matrix;
-	}
 	void Polycrystall::Deformate()
 	{
-		omp_set_num_threads(thread_count);
+		omp_set_num_threads(prms::thread_count);
 
-		if (REAL_UNIAX)
+		if (prms::REAL_UNIAX)
 		{
 			tension_component = D.C[0][0];
 		}
-		for (cycle = 0; cycle < cycle_count; cycle++)
+		for (cycle = 0; cycle < prms::cycle_count; cycle++)
 		{
 			PLOT_STEP = 0;
 			POLUS_STEP = 0;
 			PROC_STEP = 0;
-			if (cycle_count > 1)
+			if (prms::cycle_count > 1)
 			{
 				std::cout << std::endl << " Cycle # " << cycle + 1;
 			}
 			std::cout << std::endl << "        0.00%";
-			while (Strain < strain_max)
+			while (Strain < prms::strain_max)
 			{
 				Load(false);
 			}
 		
-			if (UNLOADING)
+			if (prms::UNLOADING)
 			{
 				std::cout << std::endl << " Unloading # " << cycle + 1;
 				std::cout << std::endl << "        0.00%";
@@ -953,12 +888,12 @@ namespace model
 					 Load(true);
 				}
 			}
-			if (cycle_count > 1)
+			if (prms::cycle_count > 1)
 			{
 				D.C[0][0] = pow(-1, cycle + 1) * tension_component;	//Меняем знак растягивающей компоненты
-				strain_max += strain_max * addition_strain;					//Повышаем предел интенсивности
+				prms::strain_max += prms::strain_max * addition_strain;					//Повышаем предел интенсивности
 			}
-			if (FRAGMENTATION) Fragmentate();
+			if (prms::FRAGMENTATION) Fragmentate();
 		
 		}
 	}

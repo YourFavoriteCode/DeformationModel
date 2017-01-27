@@ -24,6 +24,7 @@ namespace model
 		rot_H = 0;
 		rot_L = 0;
 		rot_energy = 0;
+		crystall_center = false;
 	}
 
 	Fragment::~Fragment()
@@ -415,7 +416,7 @@ namespace model
 			***********              Закон Шмида             ************
 			************************************************************/
 			SS[k].t = 0;
-			if (!SYMMETRY)
+			if (!prms::SYMMETRY)
 			{
 				for (int i = 0; i < DIM; i++)
 				{
@@ -441,15 +442,15 @@ namespace model
 			/************************************************************
 			***********      Соотношение Хатчинсона          ************
 			************************************************************/
-			SS[k].dgm = dgm0 * pow(fabs(SS[k].t / SS[k].tc), m) * H(SS[k].t - SS[k].tc);
+			SS[k].dgm = prms::dgm0 * pow(fabs(SS[k].t / SS[k].tc), prms::m) * H(SS[k].t - SS[k].tc);
 
-			SS[k].gmm += SS[k].dgm * dt; //Сдвиг по СС
+			SS[k].gmm += SS[k].dgm * prms::dt; //Сдвиг по СС
 		}
 		/************************************************************
 		**********    Вычисление неупругих деформаций     ***********
 		************************************************************/
 		d_in.setZero();
-		if (!SYMMETRY)
+		if (!prms::SYMMETRY)
 		{
 			for (int i = 0; i < DIM; i++)
 			{
@@ -510,22 +511,14 @@ namespace model
 		{
 			for (int j = 0; j < DIM; j++)
 			{
-				e.C[i][j] += d.C[i][j] * dt;
-				sgm.C[i][j] += dsgm.C[i][j] * dt;
+				e.C[i][j] += d.C[i][j] * prms::dt;
+				sgm.C[i][j] += dsgm.C[i][j] * prms::dt;
 			}
 		}
-		//strain = 0;
-		//stress = 0;
+		
 		strain = e.doubleScalMult(e);
 		stress = sgm.doubleScalMult(sgm);
-		/*for (int i = 0; i < DIM; i++)
-		{
-			for (int j = 0; j < DIM; j++)
-			{
-				strain += e.C[i][j] * e.C[j][i];
-				stress += sgm.C[i][j] * sgm.C[j][i];
-			}
-		}*/
+	
 		strain = SQRT2_3 * sqrt(strain);
 		stress = SQRT3_2 * sqrt(stress);
 	}
@@ -534,8 +527,8 @@ namespace model
 	{
 		Vector e;
 		float M = 0;
-		e.setZero();
-		for (int i = 0; i < 3; i++, ++e.C[i])//<100><110><111>
+		e.setZero();//<000>-->
+		for (int i = 0; i < 3; i++, ++e.C[i])//--> <100><110><111>
 		{
 			e.Normalize();
 			Vector e1 = ScalMult(e, o);//Перевод в ЛСК
