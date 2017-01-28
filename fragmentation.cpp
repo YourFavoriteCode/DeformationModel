@@ -8,12 +8,14 @@ namespace model
 {
 	int get1DPos(int q1, int q2, int q3)
 	{
+		//По трём координатам в объёме поликристалла возвращает уникальный номер фрагмента
 		int res = q1*prms::fragm_count*prms::fragm_count + q2*prms::fragm_count + q3;
 		return res;
 	}
 
 	void get3DPos(int pos, int* q1, int* q2, int* q3)
 	{
+		//Восстанавливает пространственные координаты поликристалла по уникальному номеру
 		int C2d = prms::fragm_count*prms::fragm_count;
 		int C3d = C2d*prms::fragm_count;
 
@@ -51,26 +53,15 @@ namespace model
 					int pos1 = get1DPos(q1, q2, q3);	//Позиция первого элемента
 					if (C[q1][q2][q3].crystall_center)
 					{
-						sm_matrix[pos1][pos1] = -2;
+						sm_matrix[pos1][pos1] = -2;		//Обозначение центра кристаллизации зерна
 					}
 					for (int h = 0; h < prms::surround_count; h++)
 					{
 						if (C[q1][q2][q3].contact[h] == 0) continue;//Если фрагменты не контактируют
 						int pos2 = C[q1][q2][q3].surrounds[h].position;//Позиция второго элемента
-						//if (pos2 < pos1) continue;			//Раз матрица диагональная - нижнюю половину не нужно отдельно считать
-						/*if (C[q1][q2][q3].contact[h] == 0)
-						{
-						sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = -1;//Если фрагменты не контактируют
-						continue;
-						}
-						else if (sm_matrix[pos1][pos2]==0)//Если ещё не прошли
-						{
-						sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = (float)rand() / RAND_MAX;
-						}*/
 						if (pos1 < pos2) sm_matrix[pos1][pos2] = C[q1][q2][q3].DisorientMeasure(h);
 						//sm_matrix[pos1][pos2] = sm_matrix[pos2][pos1] = C[q1][q2][q3].contact[h];
 
-						//if (pos1<pos2)sm_matrix[pos1][pos2] = C[q1][q2][q3].surrounds[h].position;
 					}
 
 
@@ -125,10 +116,14 @@ namespace model
 		for (int i = 0; i < cnt; i++)
 		{
 			bool good = false;
-			int rnd;
+			int rnd, rnd1, rnd2, rnd3;
 			while (!good)
 			{
-				rnd = rand() % total_fragm_count;
+				//rnd = rand() % total_fragm_count;
+				rnd1 = rand() % fragm_count;
+				rnd2 = rand() % fragm_count;
+				rnd3 = rand() % fragm_count;
+				rnd = get1DPos(rnd1, rnd2, rnd3);
 				good = true;
 				for (int j = 0; j < i; j++)
 				{
@@ -177,7 +172,8 @@ namespace model
 					{
 						if (get1DPos(q1, q2, q3) == cryst_center[i])//попали в центр кристаллизации
 						{
-							int grain_size = rand() % gsz + 2;//Вариация размеров зёрен
+							int dsp = 2*(gsz - 2) + 1;//Диапазон вариации размеров (минимальный размер зерна равен 2)
+							int grain_size = rand() % dsp + 2;//Вариация размеров зёрен
 							double a = ((double)rand() / RAND_MAX) * (PI);//Общая ориентация для данного зерна
 							double g = ((double)rand() / RAND_MAX) * (PI);
 							double y1 = ((double)rand() / RAND_MAX);
@@ -191,8 +187,9 @@ namespace model
 										int i1 = qq1 > fragm_count - 1 ? qq1 - fragm_count : qq1;
 										int i2 = qq2 > fragm_count - 1 ? qq2 - fragm_count : qq2;
 										int i3 = qq3 > fragm_count - 1 ? qq3 - fragm_count : qq3;
-										double delta = ((double)rand() / RAND_MAX) * (PI / 60);
-										C[i1][i2][i3].Orientate(a - delta, g - delta, y1, y2);//Внести небольшие разориентации
+										double delta1 = ((double)rand() / RAND_MAX) * (PI / 60);
+										double delta2 = ((double)rand() / RAND_MAX) * (PI / 60);
+										C[i1][i2][i3].Orientate(a - delta1, g - delta2, y1-delta1, y2-delta2);//Малые разориентации
 										mass[i1][i2][i3] = i;//Данный фрагмент теперь принадлежит зерну i
 									}
 								}
@@ -207,7 +204,7 @@ namespace model
 			}
 		}
 
-		for (int q1 = 0; q1 < fragm_count; q1++)//Оставшиеся не при делах просто становятся отдельными зёрнами
+		for (int q1 = 0; q1 < fragm_count; q1++)//Оставшиеся ни при делах просто становятся отдельными зёрнами
 		{
 			for (int q2 = 0; q2 < fragm_count; q2++)
 			{
