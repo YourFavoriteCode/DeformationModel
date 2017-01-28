@@ -42,7 +42,7 @@ namespace model
 	{
 		/*
 		* Функция задаёт ориентацию решётки на основе двух
-		* углов и двух случайных чисел, генерирую равномерное 
+		* углов и двух случайных чисел, генерируя равномерное 
 		* распределение косинуса третьего угла
 		*/
 		double cb = y1 > 0.5 ? y2 : -y2;
@@ -525,13 +525,15 @@ namespace model
 
 	float Fragment::DisorientMeasure(int h)
 	{
-		Vector e;
+		Vector e;//Вектор в КСК
 		float M = 0;
-		e.setZero();//<000>-->
-		for (int i = 0; i < 3; i++, ++e.C[i])//--> <100><110><111>
+		for (int i = 0; i < 3; i++)
 		{
+			e.setZero();	//Направления [100], [110], [111]
+			for (int j = 0; j <= i; j++) e.C[j] = 1;
 			e.Normalize();
-			Vector e1 = ScalMult(e, o);//Перевод в ЛСК
+		
+			Vector e1 = ScalMult(e, o);//Перевод вектора в ЛСК
 			e1.Normalize();
 
 			float teta1 = (float)atan(sqrt(e1.C[0] * e1.C[0] + e1.C[1] * e1.C[1]) / e1.C[2]);
@@ -542,9 +544,9 @@ namespace model
 
 			float teta2 = (float)atan(sqrt(e1.C[0] * e1.C[0] + e1.C[1] * e1.C[1]) / e1.C[2]);
 			float fi2 = (float)atan(e1.C[1] / e1.C[0]);
-
+			//Нахождение длины дуги между двумя точками на единичной сфере
 			float L = acos(cos(teta1)*cos(teta2) + sin(teta1)*sin(teta2)*cos(fi1 - fi2)) / PI;//Нормировка по PI
-			M = L > M ? L : M;
+			M = (L > M) ? L : M;
 		}
 		return M;
 	}
