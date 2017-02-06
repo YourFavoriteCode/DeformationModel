@@ -1,7 +1,6 @@
 ﻿#include "stdafx.h"
 #include <cmath>
 #include <omp.h>
-#include <iostream>
 #include <fstream>
 
 #include "Polycrystall.h"
@@ -233,7 +232,7 @@ namespace model
 						int qq1 = q1, qq2 = q2, qq3 = q3, y;
 						//qq1, qq2, qq3 - координаты зерна соседа
 						//y - номер нормали в соседнем зерне в направлении данного зерна
-						double fi = ((double)rand() / RAND_MAX) * (PI / 12);
+						double fi = ((double)rand() / RAND_MAX) * (PI / 12);//Случайный угол отклонения нормали
 						//TODO: предвычислить наиболее распространенные слагаемые для удобства чтения
 						switch (h)
 						{
@@ -739,9 +738,8 @@ namespace model
 		if (PROC_STEP == period)
 		{
 			PROC_STEP = 0;
-			std::cout << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b";
-			printf("        %2.2f", progress);
-			std::cout << "%";
+			//Курсор двигается на 6 символов влево, записывается новое значение с точностью 5.2 и знак %
+			printf("\b\b\b\b\b\b%0*.*f%%", 5, 2, progress);
 		}
 		
 		/************************************************************
@@ -871,9 +869,9 @@ namespace model
 			PROC_STEP = 0;
 			if (prms::cycle_count > 1)
 			{
-				std::cout << std::endl << " Cycle # " << cycle + 1;
+				printf("\n Loading #%d", cycle + 1);
 			}
-			std::cout << std::endl << "        0.00%";
+			printf("\n        00.00%");
 			while (Strain < prms::strain_max)
 			{
 				Load(false);
@@ -881,8 +879,8 @@ namespace model
 		
 			if (prms::UNLOADING)
 			{
-				std::cout << std::endl << " Unloading # " << cycle + 1;
-				std::cout << std::endl << "        0.00%";
+				printf("\n Unloading #%d", cycle + 1);
+				printf("\n        00.00%");
 				while (fabs(Stress) > final_stress)
 				{
 					 Load(true);

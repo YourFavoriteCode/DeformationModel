@@ -1,7 +1,6 @@
 ﻿#include "stdafx.h"
 
 #include <fstream>
-#include <iostream>
 #include <ctime>
 #include <Windows.h>
 
@@ -34,59 +33,59 @@ int _tmain(int argc, _TCHAR* argv[])
 	/*****************************************************************
 	********     Интерфейс ввода/вывода параметров модели     ********
 	*****************************************************************/
-	std::cout << " Build on " << __DATE__ << " " << __TIME__ << std::endl;
+	printf(" Build date %s, %s\n", __DATE__, __TIME__);
 	char* param_file = new char[256];
 	wcstombs(param_file, argv[1], 256);//Получили имя файла с параметрами
-	std::cout << " Parameters file: " << param_file << std::endl;
-	if (prms::ReadParams(param_file) == 1) std::cout << " Error in file!" << std::endl;		//Считали параметры из файла
+	printf(" Parameters file: %s\n", param_file);
+	if (prms::ReadParams(param_file) == 1) printf(" Error in file!\n");		//Считали параметры из файла
 	delete param_file;//Больше не нужен
-	std::cout << " ==========================================" << std::endl;
+	printf(" ==========================================\n");
 	const int total_fragm_count = (int)pow(prms::fragm_count, 3);	//Общее кол-во фрагментов
-	std::cout << " Fragments count: " << total_fragm_count << std::endl;
-	std::cout << " Max. strain: " << prms::strain_max << std::endl;
-	std::cout << " Integration step: " << prms::dt << std::endl;
+	printf(" Fragments count: %d\n", total_fragm_count);
+	printf(" Max. strain: %g\n", prms::strain_max);
+	printf(" Integration step: %g\n", prms::dt);
 	if (prms::ROTATIONS_HARDENING)
 	{
-		std::cout << " Using rotation hardening model" << std::endl;
+		printf(" Using rotation hardening model\n");
 	}
 	if (prms::ROTATIONS_TAYLOR)
 	{
-		std::cout << " Using Taylor's rotation model" << std::endl;
+		printf(" Using Taylor's rotation model\n");
 	}
 	if (prms::ROTATIONS_TRUSOV)
 	{
-		std::cout << " Using Trusov's rotation model" << std::endl;
-		std::cout << "       A: " << prms::ROT_A << std::endl;
-		std::cout << "       H: " << prms::ROT_H << std::endl;
-		std::cout << "       L: " << prms::ROT_L << std::endl;
-		std::cout << "       MC: " << prms::ROT_MC << std::endl;
+		printf(" Using Trusov's rotation model\n");
+		printf("       A: %g\n", prms::ROT_A);
+		printf("       H: %g\n", prms::ROT_H);
+		printf("       L: %g\n", prms::ROT_L);
+		printf("       MC: %g\n", prms::ROT_MC);
 	}
 	if (prms::HARDENING_BASE)
 	{
-		std::cout << " Using basic hardening" << std::endl;
-		std::cout << "       A: " << prms::HARD_BASE_A << std::endl;
-		std::cout << "       Delta: " << prms::HARD_BASE_DELTA << std::endl;
-		std::cout << "       Psi: " << prms::HARD_BASE_PSI << std::endl;
+		printf(" Using basic hardening\n");
+		printf("       A: %g\n", prms::HARD_BASE_A);
+		printf("       Delta: %g\n", prms::HARD_BASE_DELTA);
+		printf("       Psi: %g\n", prms::HARD_BASE_PSI);
 	}
 	if (prms::HARDENING_BOUND)
 	{
-		std::cout << " Using boundary hardening" << std::endl;
-		std::cout << "       K: " << prms::HARD_BOUND_K << std::endl;
+		printf(" Using boundary hardening\n");
+		printf("       K: %g\n", prms::HARD_BOUND_K);
 	}
 	if (prms::debug_period > 0)
 	{
-		std::cout << " ============= DEBUG MODE =============" << std::endl;
-		std::cout << "       Period: " << prms::debug_period << std::endl;
-		std::cout << "       Start: " << prms::DEBUG_START << std::endl;
-		std::cout << "       Stop: " << prms::DEBUG_STOP << std::endl;
+		printf(" ============= DEBUG MODE =============\n");
+		printf("       Period: %d\n", prms::debug_period);
+		printf("       Start: %d\n", prms::DEBUG_START);
+		printf("       Stop: %d\n", prms::DEBUG_STOP);
 	}
 	if (prms::fix_orient == 1)
 	{
-		std::cout << " Saving current orientations and normals" << std::endl;
+		printf(" Saving current orientations and normals\n");
 	}
 	if (prms::fix_orient == 2)
 	{
-		std::cout << " Reading saved orientations and normals" << std::endl;
+		printf(" Reading saved orientations and normals\n");
 	}
 	
 	Polycrystall PC;				//Создание и инициализация поликристалла
@@ -94,7 +93,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	unsigned long t1, t2;			//Отсечки времени
 
-	std::cout << " Initializing all fragments... ";
+	printf(" Initializing all fragments... ");
 	t1 = clock();
 
 	PC.D = prms::gradV.getSymmetryPart();
@@ -208,17 +207,17 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	}
 	t2 = clock();
-	std::cout << (t2 - t1) / 1000.0 << " sec" << std::endl;
+	printf("%g sec\n", (t2 - t1) / 1000.0);
 
 	PC.OpenFiles();				//Открытие и очистка файлов для вывода
 	//Сохранение начальных полюсных фигур и ССТ
 	if (prms::polus_period > 0)
 	{
-		std::cout << " Saving pole figures... ";
+		printf(" Saving pole figures... ");
 		t1 = clock();
 		PC.SavePoleFig();
 		t2 = clock();
-		std::cout << (t2 - t1) / 1000.0 << " sec" << std::endl;
+		printf("%g sec\n", (t2 - t1) / 1000.0);
 	}
 
 	/*{
@@ -261,17 +260,17 @@ int _tmain(int argc, _TCHAR* argv[])
 	*********		если она была запущена из неё		********
 	***********************************************************/
 
-	if (!isnormal(PC.Strain)) std::cout << std::endl << " Calculation ERROR!" << std::endl;
-	else std::cout << "\b\b\b\b\b\b\b\b\b\b\b\b\b\b" << " Done    " << std::endl;
-	std::cout << " ==================================================" << std::endl;
-	std::cout << " Processing time: " << (t2 - t1) / 1000.0 << " sec" << std::endl;
-	std::cout << " Number of steps: " << PC.CURR_STEP << std::endl;
+	if (!isnormal(PC.Strain)) printf("\n Calculation ERROR!\n");
+	else printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b Done    \n");
+	printf(" ==================================================\n");
+	printf(" Processing time: %g sec\n", (t2 - t1) / 1000.0);
+	printf(" Number of steps: %d\n", PC.CURR_STEP);
 	if (!isnormal(PC.Strain))//Если не зафиксированы ошибки - закрытие
 	{
-		std::cout << " ==================================================" << std::endl;
-		std::cout << " Press any key or STOP button to exit...";
-		std::system("title Done");
-		std::cin.get();
+		printf(" ==================================================\n");
+		//printf(" Press any key or STOP button to exit...");
+		system("title Done");//Меняет заголовок окна
+		system("pause");
 	}
 	
 	PC.CloseFiles();				//Сохранение всех полученных данных
