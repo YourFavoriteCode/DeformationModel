@@ -525,27 +525,44 @@ namespace model
 
 	float Fragment::DisorientMeasure(int h)
 	{
-		Vector e;//Вектор в КСК
 		float M = 0;
 		for (int i = 0; i < 3; i++)
 		{
-			e.setZero();	//Направления [100], [110], [111]
+			Vector e;	//Направления [100], [110], [111] в КСК
 			for (int j = 0; j <= i; j++) e.C[j] = 1;
 			e.Normalize();
 		
 			Vector e1 = ScalMult(e, o);//Перевод вектора в ЛСК
+			Vector e2 = ScalMult(e, surrounds[h].o);
 			e1.Normalize();
+			e2.Normalize();
+			//Теперь нужно отразить оба эти вектора в одну четверть сферы (x>0,y>0,z>0)
+			for (int k = 0; k < 3; k++)
+			{
+				e1.C[k] = fabs(e1.C[k]);
+				e2.C[k] = fabs(e2.C[k]);
+			}
+			//А потом свернуть ещё пополам
+			if (e1.C[0] < e1.C[1])
+			{
+				double buf = e1.C[0];
+				e1.C[0] = e1.C[1];
+				e1.C[1] = buf;
+			}
+			if (e2.C[0] < e2.C[1])
+			{
+				double buf = e2.C[0];
+				e2.C[0] = e2.C[1];
+				e2.C[1] = buf;
+			}
 
 			float teta1 = (float)atan(sqrt(e1.C[0] * e1.C[0] + e1.C[1] * e1.C[1]) / e1.C[2]);
 			float fi1 = (float)atan(e1.C[1] / e1.C[0]);
 
-			e1 = ScalMult(e, surrounds[h].o);
-			e1.Normalize();
-
-			float teta2 = (float)atan(sqrt(e1.C[0] * e1.C[0] + e1.C[1] * e1.C[1]) / e1.C[2]);
-			float fi2 = (float)atan(e1.C[1] / e1.C[0]);
+			float teta2 = (float)atan(sqrt(e2.C[0] * e2.C[0] + e2.C[1] * e2.C[1]) / e2.C[2]);
+			float fi2 = (float)atan(e2.C[1] / e2.C[0]);
 			//Нахождение длины дуги между двумя точками на единичной сфере
-			float L = acos(cos(teta1)*cos(teta2) + sin(teta1)*sin(teta2)*cos(fi1 - fi2)) / PI;//Нормировка по PI
+			float L = acos(cos(teta1)*cos(teta2) + sin(teta1)*sin(teta2)*cos(fi1 - fi2)) / PI_2;//Нормировка по PI/2
 			M = (L > M) ? L : M;
 		}
 		return M;
