@@ -1,4 +1,8 @@
-﻿#include "stdafx.h"
+﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
+#include "stdafx.h"
 #include <cmath>
 
 #include "params.h"
@@ -64,7 +68,8 @@ namespace model
 				if (f->SS[k].b.ScalMult(f->normals[h]) < 0) continue; //Скольжение от границы - пропускаем
 				double zguk = prms::HARD_BOUND_K * f->SS[k].dgm * f->SS[k].gmm / f->size;
 				double min = 1.0;//Минимум
-				for (int p = 0; p < f->surrounds[h].SS_count; p++)	//Цикл по системам соседнего зерна
+				min = f->DisorientMeasure(h);
+				/*for (int p = 0; p < f->surrounds[h].SS_count; p++)	//Цикл по системам соседнего зерна
 				{
 					Vector b2 = ScalMult(f->surrounds[h].o, f->surrounds[h].SS[p].b);//Перевели вектор b p-ой СС соседнего зерна в ЛСК
 					Vector diff = b1 - b2;
@@ -75,7 +80,7 @@ namespace model
 					{
 						min = M;
 					}
-				}
+				}*/
 				zgu += zguk*min;
 			}
 

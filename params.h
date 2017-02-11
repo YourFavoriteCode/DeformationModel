@@ -62,6 +62,9 @@ namespace prms
 	extern double ROT_H;					//Параметр пластической составляющей
 	extern double ROT_L;					//Параметр лямбда
 	extern double ROT_MC;					//Начальный критический момент
+
+	extern double ROT_HARD_K1;
+	extern double ROT_HARD_K2;
 	
 	/********************************************************
 	*****************     Упрочнения     ********************

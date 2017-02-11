@@ -1,5 +1,8 @@
-﻿#include "stdafx.h"
-#include <iostream>
+﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
+#include "stdafx.h"
 
 #include "params.h"
 #include "TinyXML\tinyxml2.h"
@@ -48,6 +51,9 @@ namespace prms
 	double ROT_H = 1e-7;
 	double ROT_L = 10;
 	double ROT_MC = 3e4;
+
+	double ROT_HARD_K1;
+	double ROT_HARD_K2;
 
 	bool HARDENING_BASE = false;
 	bool HARDENING_BOUND = false;
@@ -103,7 +109,7 @@ namespace prms
 		}
 		else//Если нет, то предупреждаем и выводим значение по умолчанию
 		{
-			printf(" Parameter <%s> not found. Default value: %d.\n", name,*var);
+			printf(" Parameter <%s> not found. Default value: %d.\n", name, *var);
 		}
 		return 1;
 	}
@@ -175,6 +181,9 @@ namespace prms
 		getValue(rootnode, "SaveSST", &SST_SAVING);
 		getValue(rootnode, "Fragmentation", &FRAGMENTATION);
 		getValue(rootnode, "GrainSize", &Grain_size);
+
+		getValue(rootnode, "ROT_HARD_K1", &ROT_HARD_K1);
+		getValue(rootnode, "ROT_HARD_K2", &ROT_HARD_K2);
 
 		return 0;
 	}

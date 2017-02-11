@@ -1,4 +1,8 @@
-﻿#include "stdafx.h"
+﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
+#include "stdafx.h"
 #include "params.h"
 #include <fstream>
 
@@ -155,7 +159,7 @@ namespace model
 		}
 		for (int i = 0; i < cnt; i++)
 		{
-			printf(" Center %d: %d\n", i, cryst_center[i]);
+			printf("\n Center %d: %d\n", i, cryst_center[i]);
 			int q1, q2, q3;
 			get3DPos(cryst_center[i], &q1, &q2, &q3);
 			C[q1][q2][q3].crystall_center = true;
@@ -168,7 +172,7 @@ namespace model
 				for (int q3 = 0; q3 < fragm_count; q3++)
 				{
 
-					for (int i = 0; i < cnt; i++)
+					for (int i = 0; i < cnt; i++)//Тут можно не с нуля, а с того, какое ещё не обнаружено
 					{
 						if (get1DPos(q1, q2, q3) == cryst_center[i])//попали в центр кристаллизации
 						{
@@ -189,7 +193,7 @@ namespace model
 										int i3 = qq3 > fragm_count - 1 ? qq3 - fragm_count : qq3;
 										double delta1 = ((double)rand() / RAND_MAX) * (PI / 60);
 										double delta2 = ((double)rand() / RAND_MAX) * (PI / 60);
-										C[i1][i2][i3].Orientate(a - delta1, g - delta2, y1-delta1, y2-delta2);//Малые разориентации
+										C[i1][i2][i3].Orientate(a - delta1, g - delta2, y1, y2);//Малые разориентации
 										mass[i1][i2][i3] = i;//Данный фрагмент теперь принадлежит зерну i
 									}
 								}
@@ -212,7 +216,7 @@ namespace model
 				{
 					if (mass[q1][q2][q3] == -1)
 					{
-						printf(" fuck [%d_%d_%d]\n", q1, q2, q3);
+						printf(" Single fragm [%d_%d_%d]\n", q1, q2, q3);
 						double a = ((double)rand() / RAND_MAX) * (PI);
 						double g = ((double)rand() / RAND_MAX) * (PI);
 						double y1 = ((double)rand() / RAND_MAX);

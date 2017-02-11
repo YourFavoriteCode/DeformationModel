@@ -1,4 +1,8 @@
-﻿#include "stdafx.h"
+﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
+#include "stdafx.h"
 #include <fstream>
 
 #include "rotations.h"
@@ -83,10 +87,8 @@ namespace model
 	{
 		if (f->sum_angle > 100*EPS)
 		{
-			double HardRotK1 = 1e-8;//Коэффициент перед экспонентой
-			double HardRotK2 = 1e3;//Коэффициент внутри экспоненты
 			double vol = pow(f->size, 3);//Объём элемента
-			double dmc = HardRotK1 / vol * exp( - HardRotK2 * f->sum_angle);//Скорость приращения
+			double dmc = prms::ROT_HARD_K1 / vol * exp( - prms::ROT_HARD_K2 * f->sum_angle);//Скорость приращения
 			f->dmc = dmc;
 			f->rot_Mc += dmc*prms::dt;//Приращение критического момента
 		}

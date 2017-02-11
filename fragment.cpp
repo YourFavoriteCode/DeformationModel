@@ -1,4 +1,8 @@
-﻿#include "stdafx.h"
+﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
+#include "stdafx.h"
 #include <cmath>
 
 #include "fragment.h"
@@ -523,9 +527,9 @@ namespace model
 		stress = SQRT3_2 * sqrt(stress);
 	}
 
-	float Fragment::DisorientMeasure(int h)
+	double Fragment::DisorientMeasure(int h)
 	{
-		float M = 0;
+		double M = 0;
 		for (int i = 0; i < 3; i++)
 		{
 			Vector e;	//Направления [100], [110], [111] в КСК
@@ -556,13 +560,13 @@ namespace model
 				e2.C[1] = buf;
 			}
 
-			float teta1 = (float)atan(sqrt(e1.C[0] * e1.C[0] + e1.C[1] * e1.C[1]) / e1.C[2]);
-			float fi1 = (float)atan(e1.C[1] / e1.C[0]);
+			double teta1 = (double)atan(sqrt(e1.C[0] * e1.C[0] + e1.C[1] * e1.C[1]) / e1.C[2]);
+			double fi1 = (double)atan(e1.C[1] / e1.C[0]);
 
-			float teta2 = (float)atan(sqrt(e2.C[0] * e2.C[0] + e2.C[1] * e2.C[1]) / e2.C[2]);
-			float fi2 = (float)atan(e2.C[1] / e2.C[0]);
+			double teta2 = (double)atan(sqrt(e2.C[0] * e2.C[0] + e2.C[1] * e2.C[1]) / e2.C[2]);
+			double fi2 = (double)atan(e2.C[1] / e2.C[0]);
 			//Нахождение длины дуги между двумя точками на единичной сфере
-			float L = acos(cos(teta1)*cos(teta2) + sin(teta1)*sin(teta2)*cos(fi1 - fi2)) / PI_2;//Нормировка по PI/2
+			double L = acos(cos(teta1)*cos(teta2) + sin(teta1)*sin(teta2)*cos(fi1 - fi2)) / PI_2;//Нормировка по PI/2
 			M = (L > M) ? L : M;
 		}
 		return M;

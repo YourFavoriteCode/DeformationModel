@@ -1,4 +1,8 @@
-﻿#include "stdafx.h"
+﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
+#include "stdafx.h"
 #include <cmath>
 #include <omp.h>
 #include <fstream>
@@ -765,6 +769,8 @@ namespace model
 			double norma = 0;
 			double Mc = 0;
 			double dmc = 0;
+			double angle = 0;
+			double H;
 			for (int q1 = 0; q1 < fragm_count; q1++)
 			{
 				for (int q2 = 0; q2 < fragm_count; q2++)
@@ -793,10 +799,13 @@ namespace model
 						norma += C[q1][q2][q3].norm;
 						Mc += C[q1][q2][q3].rot_Mc;
 						dmc += C[q1][q2][q3].dmc;
-
+						angle += C[q1][q2][q3].sum_angle;
+						H += C[q1][q2][q3].rot_H;
 					}
 				}
 			}
+			H /= total_fragm_count;
+			angle /= total_fragm_count;
 			norma /= total_fragm_count;
 			Mc /= total_fragm_count;
 			dmc /= total_fragm_count;
@@ -822,10 +831,10 @@ namespace model
 			double StepEnergy = Sgm.doubleScalMult(dE);	//Полная энергия на шаге
 
 			TestStream[0] << RotCount << std::endl;
-			TestStream[1] << RotSpeed << std::endl;
+			TestStream[1] << angle << std::endl;
 			TestStream[2] << RotEnergy << std::endl;
 			TestStream[3] << StepEnergy << std::endl;
-			TestStream[4] << Mc << std::endl;
+			TestStream[4] << H << std::endl;
 			TestStream[5] << norma << std::endl;
 
 			PLOT_STEP = progress;

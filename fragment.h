@@ -2,10 +2,7 @@
 #define __FRAGMENT_H
 
 #include "MathCore.h"
-/*
-*Описание классов "тензор", "вектор", "система скольжения"
-*и методов работы с ними
-*/
+
 namespace model
 {
 
@@ -66,7 +63,7 @@ namespace model
 			double, double);			//Задание начальной ориентации
 		void NDScalc();					//Вычисление НДС фрагмента
 		
-		float DisorientMeasure(int);	//Возвращает меру разориентации с выбранным соседом
+		double DisorientMeasure(int);	//Возвращает меру разориентации с выбранным соседом
 
 		Fragment();
 		~Fragment();

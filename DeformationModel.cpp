@@ -1,4 +1,8 @@
-﻿#include "stdafx.h"
+﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
+#include "stdafx.h"
 
 #include <fstream>
 #include <ctime>
@@ -38,7 +42,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	wcstombs(param_file, argv[1], 256);//Получили имя файла с параметрами
 	printf(" Parameters file: %s\n", param_file);
 	if (prms::ReadParams(param_file) == 1) printf(" Error in file!\n");		//Считали параметры из файла
-	delete param_file;//Больше не нужен
+	delete[] param_file;//Больше не нужен
 	printf(" ==========================================\n");
 	const int total_fragm_count = (int)pow(prms::fragm_count, 3);	//Общее кол-во фрагментов
 	printf(" Fragments count: %d\n", total_fragm_count);
@@ -47,6 +51,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	if (prms::ROTATIONS_HARDENING)
 	{
 		printf(" Using rotation hardening model\n");
+		printf("       K1: %g\n", prms::ROT_HARD_K1);
+		printf("       K2: %g\n", prms::ROT_HARD_K2);
 	}
 	if (prms::ROTATIONS_TAYLOR)
 	{
@@ -122,7 +128,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	PC.setParams();					//Заполнение всех параметров поликристалла
 	PC.MakeStruct();				//Формирование зёренной структуры
-	PC.MakeGrains();
+	//PC.MakeGrains();
 
 
 	if (prms::fix_orient == 2)	//Считывание записанных ориентаций
