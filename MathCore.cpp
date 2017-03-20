@@ -198,6 +198,23 @@ namespace model
 			C[0][0] * C[1][2] * C[2][1] - C[2][2] * C[0][1] * C[1][0]);
 	}
 
+	void Tensor::set(double C00, double C01, double C02,
+		double C10, double C11, double C12,
+		double C20, double C21, double C22)
+	{
+		C[0][0] = C00;
+		C[0][1] = C01;
+		C[0][2] = C02;
+
+		C[1][0] = C10;
+		C[1][1] = C11;
+		C[1][2] = C12;
+
+		C[2][0] = C20;
+		C[2][1] = C21;
+		C[2][2] = C22;
+	}
+
 	void Tensor::setZero()
 	{
 		for (int i = 0; i < DIM; i++)

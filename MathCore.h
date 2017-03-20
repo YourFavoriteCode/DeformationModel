@@ -68,6 +68,9 @@ namespace model
 		double C[DIM][DIM];				//Компоненты тензора
 
 		double getDet();				//Возвращает определитель матрицы компонент
+		void set(double, double, double,
+			double, double, double,
+			double, double, double);	//Задание всех компонент тензора
 		void setZero();					//Зануляет компоненты тензора
 		void setUnit();					//Делает матрицу компонент тензора единичной
 		void Transp();					//Транспонирует матрицу компонент тензора
