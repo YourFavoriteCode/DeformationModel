@@ -446,7 +446,7 @@ namespace model
 			/************************************************************
 			***********      Соотношение Хатчинсона          ************
 			************************************************************/
-			SS[k].dgm = prms::dgm0 * pow(fabs(SS[k].t / SS[k].tc), prms::m) * H(SS[k].t - SS[k].tc);
+			SS[k].dgm = prms::dgm0 * pow(SS[k].t / SS[k].tc, prms::m) * H(SS[k].t - SS[k].tc);
 
 			SS[k].gmm += SS[k].dgm * prms::dt; //Сдвиг по СС
 		}
@@ -560,11 +560,11 @@ namespace model
 				e2.C[1] = buf;
 			}
 
-			double teta1 = (double)atan(sqrt(e1.C[0] * e1.C[0] + e1.C[1] * e1.C[1]) / e1.C[2]);
-			double fi1 = (double)atan(e1.C[1] / e1.C[0]);
+			double teta1 = atan(sqrt(e1.C[0] * e1.C[0] + e1.C[1] * e1.C[1]) / e1.C[2]);
+			double fi1 = atan(e1.C[1] / e1.C[0]);
 
-			double teta2 = (double)atan(sqrt(e2.C[0] * e2.C[0] + e2.C[1] * e2.C[1]) / e2.C[2]);
-			double fi2 = (double)atan(e2.C[1] / e2.C[0]);
+			double teta2 = atan(sqrt(e2.C[0] * e2.C[0] + e2.C[1] * e2.C[1]) / e2.C[2]);
+			double fi2 = atan(e2.C[1] / e2.C[0]);
 			//Нахождение длины дуги между двумя точками на единичной сфере
 			double L = acos(cos(teta1)*cos(teta2) + sin(teta1)*sin(teta2)*cos(fi1 - fi2)) / PI_2;//Нормировка по PI/2
 			M = (L > M) ? L : M;
