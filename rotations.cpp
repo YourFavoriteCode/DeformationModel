@@ -87,8 +87,7 @@ namespace model
 	{
 		if (f->sum_angle > 100*EPS)
 		{
-			double vol = pow(f->size, 3);//Объём элемента
-			double dmc = prms::ROT_HARD_K1 / vol * exp( - prms::ROT_HARD_K2 * f->sum_angle);//Скорость приращения
+			double dmc = prms::ROT_HARD_K1 + prms::ROT_HARD_K2*f->sum_angle / f->volume;
 			f->dmc = dmc;
 			f->rot_Mc += dmc*prms::dt;//Приращение критического момента
 		}
@@ -137,12 +136,12 @@ namespace model
 		Vector M = f->moment + dM*prms::dt;
 		f->moment = M;
 		double norm = M.getNorm();
-		
+		f->norm = norm;
 		if (norm > f->rot_Mc || norm == -1)
 		{
 			norm = f->rot_Mc;
 		}
-		f->norm = norm;
+	
 	
 		double pr = M.ScalMult(dM);
 	
