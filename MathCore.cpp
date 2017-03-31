@@ -120,6 +120,16 @@ namespace model
 		}
 		return buf;
 	}
+	
+	Vector Vector::operator-()
+	{
+		Vector buf;
+		for (int i = 0; i < DIM; i++)
+		{
+			buf.C[i] = -C[i];
+		}
+		return buf;
+	}
 
 	Vector Vector::operator*(const double r)
 	{
@@ -335,6 +345,19 @@ namespace model
 			for (int j = 0; j < DIM; j++)
 			{
 				res.C[i][j] = C[i][j] - t.C[i][j];
+			}
+		}
+		return res;
+	}
+
+	Tensor Tensor::operator - ()
+	{
+		Tensor res;
+		for (int i = 0; i < DIM; i++)
+		{
+			for (int j = 0; j < DIM; j++)
+			{
+				res.C[i][j] = -C[i][j];
 			}
 		}
 		return res;

@@ -44,6 +44,7 @@ namespace model
 			
 		Vector operator + (Vector);		//Оператор сложения
 		Vector operator - (Vector);		//Оператор вычитания
+		Vector operator - ();			//Унарный минус
 		Vector operator * (double);
 		void operator += (Vector);		//Оператор прибавления вектора
 		void operator -= (Vector);		//Оператор вычитания вектора
@@ -82,6 +83,7 @@ namespace model
 		
 		Tensor operator + (Tensor);		//Оператор сложения тензоров
 		Tensor operator - (Tensor);		//Оператор вычитания тензоров
+		Tensor operator - ();			//Унарный минус
 		Tensor operator * (Tensor);		//Оператор умножения тензоров
 		void operator += (Tensor);		//Оператор прибавления тензора
 		void operator -= (Tensor);		//Оператор убавления тензора
