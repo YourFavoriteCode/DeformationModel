@@ -713,4 +713,17 @@ namespace model
 		}
 		return res;
 	}
+
+	Tensor Transp(Tensor t)
+	{
+		Tensor res;
+		for (int i = 0; i < DIM; i++)
+		{
+			for (int j = 0; j < DIM; j++)
+			{
+				res.C[i][j] = t.C[j][i];
+			}
+		}
+		return res;
+	}
 }

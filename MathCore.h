@@ -153,6 +153,8 @@ namespace model
 	Tensor VectMult(Tensor, Vector);	//Векторное произведение тензора на вектор
 	Vector ScalMult(Vector, Tensor);	//Скалярное произведение вектора на тензор
 	Vector ScalMult(Tensor, Vector);	//Скалярное произведение тензора на вектор
+
+	Tensor Transp(Tensor);				//Возвращает транспонированный аргумент
 }
 
 #endif __MATHCORE_H
