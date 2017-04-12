@@ -55,7 +55,7 @@ namespace model
 	const double TITAN_P3 = 6.9e10;
 	const double TITAN_P4 = 9.2e10;
 	const double TITAN_P5 = 4.67e10;
-	const double TITAN_P6 = 3.5e9;
+	const double TITAN_P6 = 3.5e10;
 
 	const double TITAN_C = 1.587;
 
