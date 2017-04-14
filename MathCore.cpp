@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "MathCore.h"
+#include "Eigen/Eigen"
 
 namespace model
 {
@@ -374,6 +375,32 @@ namespace model
 		}
 	}
 
+	Tensor operator *(const double r, Tensor &t)
+	{
+		Tensor res;
+		for (int i = 0; i < DIM; i++)
+		{
+			for (int j = 0; j < DIM; j++)
+			{
+				res.C[i][j] = t.C[i][j]*r;
+			}
+		}
+		return res;
+	}
+
+	Tensor operator *(Tensor &t, const double r)
+	{
+		Tensor res;
+		for (int i = 0; i < DIM; i++)
+		{
+			for (int j = 0; j < DIM; j++)
+			{
+				res.C[i][j] = t.C[i][j] * r;
+			}
+		}
+		return res;
+	}
+
 	Tensor Tensor::operator *(const Tensor t)
 	{
 		Tensor res;
@@ -725,5 +752,19 @@ namespace model
 			}
 		}
 		return res;
+	}
+
+	double Tensor::getL(int n)
+	{
+		Eigen::MatrixXf m(DIM, DIM);
+		for (int i = 0; i < DIM; i++)
+		{
+			for (int j = 0; j < DIM; j++)
+			{
+				m(i, j) = C[i][j];
+			}
+		}
+		Eigen::EigenSolver<Eigen::MatrixXf> solver(m);
+		return solver.eigenvalues().col(0)[n].real();
 	}
 }
