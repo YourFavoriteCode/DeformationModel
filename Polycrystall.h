@@ -51,6 +51,7 @@ namespace model
 		void Deformate();			//Деформирование поликристалла
 		
 		void Fragmentate();			//Процедура фрагментации
+		void Illustrate();			//Сохранение в файл структурного графа
 		void SavePoleFig();			//Сохранение ПФ
 		void SaveDbgInfo();			//Сохранение отладочных данных
 		void OpenFiles();			//Открытие всех файлов для записи
