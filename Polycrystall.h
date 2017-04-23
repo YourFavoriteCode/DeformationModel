@@ -34,6 +34,8 @@ namespace model
 		int file_count;				//Кол-во отладочных файлов
 		std::ofstream *dbgstream;	//Массив файлов для отладки
 		std::ofstream *Datastream;	//Массив файлов с кривыми НДС
+		std::ofstream *DataXStream;	//Массив файлов с кривыми НДС (X)
+		std::ofstream *DataYStream;	//Массив файлов с кривыми НДС (Y)
 		std::ofstream *TestStream;	//Массив временных (тестовых) файлов
 
 		Polycrystall();

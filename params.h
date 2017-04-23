@@ -22,8 +22,6 @@ namespace prms
 	extern int fix_orient;					//Считывание ориентаций и нормалей из файлы
 	extern double dt;						//Шаг интегрирования
 	extern int thread_count;				//Кол-во потоков
-	extern double plot_period;				//Период сохранения диаграммы НДС
-	extern double polus_period;				//Период сохранения ПФ
 	extern int debug_period;				//Период сохранения отладочных данных
 	extern int DEBUG_START;					//Нижнее ограничение записи отладочной информации
 	extern int DEBUG_STOP;					//Верхнее ограничение записи отладочной информации
@@ -84,6 +82,26 @@ namespace prms
 
 	extern bool FRAGMENTATION;
 	extern int Grain_size;
+
+	/********************************************************
+	***********			Выходные файлы		*****************
+	********************************************************/
+
+	extern double plot_period;				//Период сохранения диаграммы НДС
+	extern double polus_period;				//Период сохранения ПФ
+	extern bool SaveIntense;				//Сохранение интенсивностей тензоров
+	extern bool SaveMacro;					//Сохранение данных макроуровня
+	extern bool SaveMeso;					//Сохранение данных мехоуровня
+	extern bool SaveActiveSS;				//Сохранение активных СС	
+	extern bool Save11;						//Покомпонентное сохранение
+	extern bool Save12;
+	extern bool Save13;
+	extern bool Save21;
+	extern bool Save22;
+	extern bool Save23;
+	extern bool Save31;
+	extern bool Save32;
+	extern bool Save33;
 
 	int ReadParams(const char *);			//Считывание параметров из файла
 

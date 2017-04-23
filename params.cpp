@@ -69,6 +69,22 @@ namespace prms
 	bool FRAGMENTATION = false;
 	int Grain_size = 3;
 
+	
+	bool SaveIntense = true;
+	bool SaveMacro = true;
+	bool SaveMeso = false;
+	bool SaveActiveSS = false;
+
+	bool Save11 = false;
+	bool Save12 = false;
+	bool Save13 = false;
+	bool Save21 = false;
+	bool Save22 = false;
+	bool Save23 = false;
+	bool Save31 = false;
+	bool Save32 = false;
+	bool Save33 = false;
+
 	int getValue(tinyxml2::XMLElement *rootnode, const char* name, int* var)//Целочисленные
 	{
 		if (rootnode->FirstChildElement(name) != NULL)//Проверка, есть ли в файле такой элемент
@@ -175,7 +191,23 @@ namespace prms
 		getValue(rootnode, "FragmSizeDsp", &fragm_size_dsp);
 		getValue(rootnode, "StartWritingDbgInfo", &DEBUG_START);
 		getValue(rootnode, "StopWritingDbgInfo", &DEBUG_STOP);
-		
+
+		/*Выходные данные*/
+		getValue(rootnode, "SaveIntense", &SaveIntense);
+		getValue(rootnode, "SaveMacro", &SaveMacro);
+		getValue(rootnode, "SaveMeso", &SaveMeso);
+		getValue(rootnode, "SaveActiveSS", &SaveActiveSS);
+
+		getValue(rootnode, "Save11", &Save11);
+		getValue(rootnode, "Save12", &Save12);
+		getValue(rootnode, "Save13", &Save13);
+		getValue(rootnode, "Save21", &Save21);
+		getValue(rootnode, "Save22", &Save22);
+		getValue(rootnode, "Save23", &Save23);
+		getValue(rootnode, "Save31", &Save31);
+		getValue(rootnode, "Save32", &Save32);
+		getValue(rootnode, "Save33", &Save33);
+
 		/*Экспериментальные параметры*/
 		getValue(rootnode, "ReadInitStress", &read_init_stress);
 		getValue(rootnode, "SaveSST", &SST_SAVING);
@@ -184,6 +216,7 @@ namespace prms
 
 		getValue(rootnode, "ROT_HARD_K1", &ROT_HARD_K1);
 		getValue(rootnode, "ROT_HARD_K2", &ROT_HARD_K2);
+	
 
 		return 0;
 	}

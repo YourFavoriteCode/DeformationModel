@@ -57,12 +57,118 @@ namespace model
 		TruncPoleFiles();				//Очистка всех файлов полюсных фигур
 		TruncSSTFiles();
 
-		Datastream = new std::ofstream[5];//Открытие файлов для записи кривых НДС
-		Datastream[0].open("Plot\\X.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
-		Datastream[1].open("Plot\\Y.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
-		Datastream[2].open("Plot\\Xall.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
-		Datastream[3].open("Plot\\Yall.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
-		Datastream[4].open("Plot\\ActiveSS.dat", std::ios_base::out | std::ios_base::trunc | std::ios::binary);
+		DataXStream = new std::ofstream[20];//Открытие файлов для записи кривых НДС
+		DataYStream = new std::ofstream[20];
+		Datastream = new std::ofstream[1];
+
+		//Файлы для вывода макро-данных
+		if (prms::SaveMacro && prms::SaveIntense)
+		{
+			DataXStream[0].open("Plot\\macroXint.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[0].open("Plot\\macroYint.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+	
+		if (prms::SaveMacro && prms::Save11)
+		{
+			DataXStream[1].open("Plot\\macroX11.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[1].open("Plot\\macroY11.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMacro && prms::Save12)
+		{
+			DataXStream[2].open("Plot\\macroX12.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[2].open("Plot\\macroY12.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMacro && prms::Save13)
+		{
+			DataXStream[3].open("Plot\\macroX13.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[3].open("Plot\\macroY13.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMacro && prms::Save21)
+		{
+			DataXStream[4].open("Plot\\macroX21.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[4].open("Plot\\macroY21.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMacro && prms::Save22)
+		{
+			DataXStream[5].open("Plot\\macroX22.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[5].open("Plot\\macroY22.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMacro && prms::Save23)
+		{
+			DataXStream[6].open("Plot\\macroX23.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[6].open("Plot\\macroY23.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMacro && prms::Save31)
+		{
+			DataXStream[7].open("Plot\\macroX31.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[7].open("Plot\\macroY31.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMacro && prms::Save32)
+		{
+			DataXStream[8].open("Plot\\macroX32.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[8].open("Plot\\macroY32.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMacro && prms::Save33)
+		{
+			DataXStream[9].open("Plot\\macroX33.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[9].open("Plot\\macroY33.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+
+		//Файлы для мезо-данных
+
+		if (prms::SaveMeso && prms::SaveIntense)
+		{
+			DataXStream[10].open("Plot\\mesoXint.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[10].open("Plot\\mesoYint.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+
+		if (prms::SaveMeso && prms::Save11)
+		{
+			DataXStream[11].open("Plot\\mesoX11.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[11].open("Plot\\mesoY11.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMeso && prms::Save12)
+		{
+			DataXStream[12].open("Plot\\mesoX12.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[12].open("Plot\\mesoY12.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMeso && prms::Save13)
+		{
+			DataXStream[13].open("Plot\\mesoX13.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[13].open("Plot\\mesoY13.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMeso && prms::Save21)
+		{
+			DataXStream[14].open("Plot\\mesoX21.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[14].open("Plot\\mesoY21.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMeso && prms::Save22)
+		{
+			DataXStream[15].open("Plot\\mesoX22.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[15].open("Plot\\mesoY22.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMeso && prms::Save23)
+		{
+			DataXStream[16].open("Plot\\mesoX23.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[16].open("Plot\\mesoY23.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMeso && prms::Save31)
+		{
+			DataXStream[17].open("Plot\\mesoX31.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[17].open("Plot\\mesoY31.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMeso && prms::Save32)
+		{
+			DataXStream[18].open("Plot\\mesoX32.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[18].open("Plot\\mesoY32.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+		if (prms::SaveMeso && prms::Save33)
+		{
+			DataXStream[19].open("Plot\\mesoX33.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+			DataYStream[19].open("Plot\\mesoY33.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
+		}
+
+		Datastream[0].open("Plot\\ActiveSS.dat", std::ios_base::out | std::ios_base::trunc | std::ios::binary);
 
 		dbgstream = new std::ofstream[file_count];
 		if (prms::debug_period > 0)				//Открытие файлов для отладочных данных
@@ -96,10 +202,12 @@ namespace model
 
 	void Polycrystall::CloseFiles()
 	{
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 20; i++)
 		{
-			Datastream[i].close();
+			DataXStream[i].close();
+			DataYStream[i].close();
 		}
+		Datastream[0].close();
 		for (int i = 0; i < 6; i++)
 		{
 			TestStream[i].close();
@@ -551,6 +659,7 @@ namespace model
 
 	void Polycrystall::Load(bool unload)
 	{
+		E += D*prms::dt;
 		/*Параметр unload включает разгрузку представительного объёма*/
 		if (prms::REAL_UNIAX || unload)	//Одноосное растяжение
 		{
@@ -577,10 +686,6 @@ namespace model
 
 			D = !unload ? TensionStrainCalc(P, D_in, D.C[0][0]) : UnloadingStrainCalc(P, D_in, Sgm, lam);
 
-			Tensor b = D;	//Вычисление интенсивности деформаций
-			b *= prms::dt;
-			E += b;
-		//	Tensor buf = E;
 			Strain = E.doubleScalMult(E);
 			Strain = SQRT2_3*sqrt(Strain);
 
@@ -629,7 +734,7 @@ namespace model
 					Tensor OT = O;
 					OT.Transp();
 					C[q1][q2][q3].d = O*D*OT;//Гипотеза Фойгта
-					C[q1][q2][q3].w = O*W*OT;//Расширенная
+					C[q1][q2][q3].w = O*W*OT - C[q1][q2][q3].om;//Расширенная
 
 					C[q1][q2][q3].sgm = O*C[q1][q2][q3].sgm*OT;
 					C[q1][q2][q3].d_in = O*C[q1][q2][q3].d_in*OT;
@@ -752,7 +857,7 @@ namespace model
 
 		if ((progress - PLOT_STEP > prms::plot_period || unload) && prms::plot_period > 0)
 		{
-			if (!prms::REAL_UNIAX && !unload)
+			/*if (!prms::REAL_UNIAX && !unload)
 			{
 				Datastream[0].write((char *)&Strain, sizeof Strain);
 				Datastream[1].write((char *)&Stress, sizeof Stress);
@@ -761,7 +866,127 @@ namespace model
 			{
 				Datastream[0].write((char *)&E.C[0][0], sizeof E.C[0][0]);
 				Datastream[1].write((char *)&Sgm.C[0][0], sizeof Sgm.C[0][0]);
+			}*/
+
+			if (prms::SaveMacro)
+			{
+				if (prms::SaveIntense)
+				{
+					DataXStream[0].write((char *)&Strain, sizeof(double));
+					DataYStream[0].write((char *)&Stress, sizeof(double));
+				}
+				if (prms::Save11)
+				{
+					DataXStream[1].write((char *)&E.C[0][0], sizeof(double));
+					DataYStream[1].write((char *)&Sgm.C[0][0], sizeof(double));
+				}
+				if (prms::Save12)
+				{
+					DataXStream[2].write((char *)&E.C[0][1], sizeof(double));
+					DataYStream[2].write((char *)&Sgm.C[0][1], sizeof(double));
+				}
+				if (prms::Save13)
+				{
+					DataXStream[3].write((char *)&E.C[0][2], sizeof(double));
+					DataYStream[3].write((char *)&Sgm.C[0][2], sizeof(double));
+				}
+				if (prms::Save21)
+				{
+					DataXStream[4].write((char *)&E.C[1][0], sizeof(double));
+					DataYStream[4].write((char *)&Sgm.C[1][0], sizeof(double));
+				}
+				if (prms::Save22)
+				{
+					DataXStream[5].write((char *)&E.C[1][1], sizeof(double));
+					DataYStream[5].write((char *)&Sgm.C[1][1], sizeof(double));
+				}
+				if (prms::Save23)
+				{
+					DataXStream[6].write((char *)&E.C[1][2], sizeof(double));
+					DataYStream[6].write((char *)&Sgm.C[1][2], sizeof(double));
+				}
+				if (prms::Save31)
+				{
+					DataXStream[7].write((char *)&E.C[2][0], sizeof(double));
+					DataYStream[7].write((char *)&Sgm.C[2][0], sizeof(double));
+				}
+				if (prms::Save32)
+				{
+					DataXStream[8].write((char *)&E.C[2][1], sizeof(double));
+					DataYStream[8].write((char *)&Sgm.C[2][1], sizeof(double));
+				}
+				if (prms::Save33)
+				{
+					DataXStream[9].write((char *)&E.C[2][2], sizeof(double));
+					DataYStream[9].write((char *)&Sgm.C[2][2], sizeof(double));
+				}
 			}
+
+			if (prms::SaveMeso)
+			{
+				for (int q1 = 0; q1 < fragm_count; q1++)
+				{
+					for (int q2 = 0; q2 < fragm_count; q2++)
+					{
+						for (int q3 = 0; q3 < fragm_count; q3++)
+						{
+							
+							if (prms::SaveIntense)
+							{
+								DataXStream[10].write((char *)&C[q1][q2][q3].strain, sizeof(double));
+								DataYStream[10].write((char *)&C[q1][q2][q3].stress, sizeof(double));
+							}
+							if (prms::Save11)
+							{
+								DataXStream[11].write((char *)&C[q1][q2][q3].e.C[0][0], sizeof(double));
+								DataYStream[11].write((char *)&C[q1][q2][q3].sgm.C[0][0], sizeof(double));
+							}
+							if (prms::Save12)
+							{
+								DataXStream[12].write((char *)&C[q1][q2][q3].e.C[0][1], sizeof(double));
+								DataYStream[12].write((char *)&C[q1][q2][q3].sgm.C[0][1], sizeof(double));
+							}
+							if (prms::Save13)
+							{
+								DataXStream[13].write((char *)&C[q1][q2][q3].e.C[0][2], sizeof(double));
+								DataYStream[13].write((char *)&C[q1][q2][q3].sgm.C[0][2], sizeof(double));
+							}
+							if (prms::Save21)
+							{
+								DataXStream[14].write((char *)&C[q1][q2][q3].e.C[1][0], sizeof(double));
+								DataYStream[14].write((char *)&C[q1][q2][q3].sgm.C[1][0], sizeof(double));
+							}
+							if (prms::Save22)
+							{
+								DataXStream[15].write((char *)&C[q1][q2][q3].e.C[1][1], sizeof(double));
+								DataYStream[15].write((char *)&C[q1][q2][q3].sgm.C[1][1], sizeof(double));
+							}
+							if (prms::Save23)
+							{
+								DataXStream[16].write((char *)&C[q1][q2][q3].e.C[1][2], sizeof(double));
+								DataYStream[16].write((char *)&C[q1][q2][q3].sgm.C[1][2], sizeof(double));
+							}
+							if (prms::Save31)
+							{
+								DataXStream[17].write((char *)&C[q1][q2][q3].e.C[2][0], sizeof(double));
+								DataYStream[17].write((char *)&C[q1][q2][q3].sgm.C[2][0], sizeof(double));
+							}
+							if (prms::Save32)
+							{
+								DataXStream[18].write((char *)&C[q1][q2][q3].e.C[2][1], sizeof(double));
+								DataYStream[18].write((char *)&C[q1][q2][q3].sgm.C[2][1], sizeof(double));
+							}
+							if (prms::Save33)
+							{
+								DataXStream[19].write((char *)&C[q1][q2][q3].e.C[2][2], sizeof(double));
+								DataYStream[19].write((char *)&C[q1][q2][q3].sgm.C[2][2], sizeof(double));
+							}
+
+						}
+					}
+				}
+			}
+		
 			double ActiveSysCount = 0;			//Среднее кол-во активных систем скольжения на шаге
 			double RotEnergy = 0;				//Энергия ротаций на шаге
 			double RotSpeed = 0;				//Средняя скорость вращения на шаге
@@ -777,7 +1002,7 @@ namespace model
 				{
 					for (int q3 = 0; q3 < fragm_count; q3++)
 					{
-						if (!prms::REAL_UNIAX && !unload)
+					/*	if (!prms::REAL_UNIAX && !unload)
 						{
 							Datastream[2].write((char *)&C[q1][q2][q3].strain, sizeof C[q1][q2][q3].strain);
 							Datastream[3].write((char *)&C[q1][q2][q3].stress, sizeof C[q1][q2][q3].stress);
@@ -786,7 +1011,7 @@ namespace model
 						{
 							Datastream[2].write((char *)&C[q1][q2][q3].e.C[0][0], sizeof C[q1][q2][q3].e.C[0][0]);
 							Datastream[3].write((char *)&C[q1][q2][q3].sgm.C[0][0], sizeof C[q1][q2][q3].sgm.C[0][0]);
-						}
+						}*/
 
 						for (int i = 0; i < C[q1][q2][q3].SS_count; i++)
 						{
@@ -810,7 +1035,7 @@ namespace model
 			Mc /= total_fragm_count;
 			dmc /= total_fragm_count;
 			ActiveSysCount /= total_fragm_count;
-			Datastream[4].write((char *)&ActiveSysCount, sizeof ActiveSysCount);//Запись кол-ва активных СС
+			if (prms::SaveActiveSS) Datastream[0].write((char *)&ActiveSysCount, sizeof ActiveSysCount);//Запись кол-ва активных СС
 			if (RotCount != 0)
 			{
 				RotSpeed /= RotCount;
@@ -831,10 +1056,10 @@ namespace model
 			double StepEnergy = Sgm.doubleScalMult(dE);	//Полная энергия на шаге
 
 			TestStream[0] << RotCount << std::endl;
-			TestStream[1] << angle << std::endl;
+			TestStream[1] << RotSpeed << std::endl;
 			TestStream[2] << RotEnergy << std::endl;
 			TestStream[3] << StepEnergy << std::endl;
-			TestStream[4] << H << std::endl;
+			TestStream[4] << Mc << std::endl;
 			TestStream[5] << norma << std::endl;
 
 			PLOT_STEP = progress;
@@ -885,6 +1110,17 @@ namespace model
 			{
 				Load(false);
 			}
+			/*	printf("\n START 2! \n");
+		//	D.set(0, 0.003, 0, 0.003, 0, 0, 0, 0, 0);//Простой сдвиг
+		//	W.setZero();
+			//D.set(-0.003, 0.003, 0, -0.003, 0.003, 0, 0, 0, 0);//РКУП
+		//	D.set(0.003, 0, 0, 0, 0.015, 0, 0, 0, 0.015);//Одноосье
+			prms::strain_max += prms::strain_max;
+			while (Strain < prms::strain_max)
+			{
+				Load(false);
+			}*/
+			
 		
 			if (prms::UNLOADING)
 			{
