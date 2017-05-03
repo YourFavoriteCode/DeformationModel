@@ -127,8 +127,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	PC.setParams();					//Заполнение всех параметров поликристалла
-	PC.MakeStruct();				//Формирование зёренной структуры
-	//PC.MakeGrains();
+	PC.MakeStruct();				//Формирование фрагментной структуры
+	if (prms::FRAGMENTATION) PC.MakeGrains();//Формирование зёренной структуры
 
 
 	if (prms::fix_orient == 2)	//Считывание записанных ориентаций

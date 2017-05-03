@@ -95,7 +95,8 @@ namespace model
 	void Polycrystall::MakeGrains()
 	{
 		int gsz = prms::Grain_size;					//Желаемый размер зерна (во фрагментах на ребере)
-		int cnt = pow(int(fragm_count / gsz), 3);	//Желаемое кол-во зёрен
+		int cnt = 2*pow(int(fragm_count / gsz), 3);	//Желаемое кол-во зёрен
+		
 		mass = new int**[fragm_count];
 		for (int i = 0; i < fragm_count; i++)
 		{
@@ -105,6 +106,7 @@ namespace model
 				mass[i][j] = new int[fragm_count];
 			}
 		}
+		
 		for (int q1 = 0; q1 < fragm_count; q1++)
 		{
 			for (int q2 = 0; q2 < fragm_count; q2++)
@@ -116,107 +118,57 @@ namespace model
 			}
 		}
 
-		int* cryst_center = new int[cnt];		//Массив центров кристаллизации зерен
 		for (int i = 0; i < cnt; i++)
 		{
+
 			bool good = false;
-			int rnd;
+			int rnd, rnd1, rnd2, rnd3;
 			while (!good)
 			{
-				int rnd1 = rand() % fragm_count;
-				int rnd2 = rand() % fragm_count;
-				int rnd3 = rand() % fragm_count;
+				rnd1 = rand() % fragm_count;
+				rnd2 = rand() % fragm_count;
+				rnd3 = rand() % fragm_count;
 				rnd = get1DPos(rnd1, rnd2, rnd3);	//Случайным образом выбирается центр
 				good = true;
-				for (int j = 0; j < i; j++)
+				for (int j = 0; j < G.size(); j++)
 				{
-					if (rnd == cryst_center[j])//Исключение возможных повторений
+					if (mass[rnd1][rnd2][rnd3] != -1)//Исключение наложений
 					{
 						good = false;
 						break;
 					}
 				}
+
 			}
-			cryst_center[i] = rnd;
-		}
-
-		for (int i = 0; i < cnt; i++)//Сортировка для оптимального обхода массива
-		{
-			for (int j = 0; j < cnt - 1; j++)
+			Grain new_gr;
+			new_gr.center = rnd;					//Назначили центр зерна
+			new_gr.size = rand() % (2 * (gsz - 2) + 1) + 2;	//Назначили размер зерна
+			new_gr.num = i;
+			G.push_back(new_gr);
+			double a = ((double)rand() / RAND_MAX) * (PI);//Общая ориентация для данного зерна
+			double g = ((double)rand() / RAND_MAX) * (PI);
+			double y1 = ((double)rand() / RAND_MAX);
+			double y2 = ((double)rand() / RAND_MAX);
+			for (int q1 = rnd1; q1 < rnd1 + G[i].size; q1++)
 			{
-				if (cryst_center[j] > cryst_center[j + 1])
+				for (int q2 = rnd2; q2 < rnd2 + G[i].size; q2++)
 				{
-					int buf = cryst_center[j + 1];
-					cryst_center[j + 1] = cryst_center[j];
-					cryst_center[j] = buf;
-				}
-			}
-		}
-
-		for (int i = 0; i < cnt; i++)		//Вывод отладочных данных
-		{
-			printf("\n Center %d: %d\n", i, cryst_center[i]);
-			int q1, q2, q3;
-			get3DPos(cryst_center[i], &q1, &q2, &q3);
-			C[q1][q2][q3].crystall_center = true;
-		}
-
-		int f = 0;	//Сколько зерен уже было обнаружено
-		for (int q1 = 0; q1 < fragm_count; q1++)
-		{
-			for (int q2 = 0; q2 < fragm_count; q2++)
-			{
-				for (int q3 = 0; q3 < fragm_count; q3++)
-				{
-
-				//	if (mass[q1][q2][q3] != -1) continue;	//Фрагмент уже принадлежит какому-то зерну
-
-					for (int i = f; i < cnt; i++)
+					for (int q3 = rnd3; q3 < rnd3 + G[i].size; q3++)
 					{
-						if (get1DPos(q1, q2, q3) == cryst_center[i])//Попали в центр кристаллизации
-						{
-							int dsp = 2 * (gsz - 2) + 1;//Диапазон вариации размеров (минимальный размер зерна равен 2)
-							int grain_size = rand() % dsp + 2;//Вариация размеров зёрен
-							Grain new_gr;
-							new_gr.center = cryst_center[i];
-							new_gr.size = grain_size;
-							new_gr.num = i;
-							G.push_back(new_gr);
-
-							double a = ((double)rand() / RAND_MAX) * (PI);//Общая ориентация для данного зерна
-							double g = ((double)rand() / RAND_MAX) * (PI);
-							double y1 = ((double)rand() / RAND_MAX);
-							double y2 = ((double)rand() / RAND_MAX);
-
-							for (int qq1 = q1; qq1 < q1 + grain_size; qq1++)
-							{
-								for (int qq2 = q2; qq2 < q2 + grain_size; qq2++)
-								{
-									for (int qq3 = q3; qq3 < q3 + grain_size; qq3++)
-									{
-									//	if (mass[qq1][qq2][qq3] != -1) continue;
-										int i1 = qq1 > fragm_count - 1 ? qq1 - fragm_count : qq1;
-										int i2 = qq2 > fragm_count - 1 ? qq2 - fragm_count : qq2;
-										int i3 = qq3 > fragm_count - 1 ? qq3 - fragm_count : qq3;
-										double delta1 = ((double)rand() / RAND_MAX) * (PI / 60);
-										double delta2 = ((double)rand() / RAND_MAX) * (PI / 60);
-										C[i1][i2][i3].Orientate(a - delta1, g - delta2, y1, y2);//Малые разориентации
-										mass[i1][i2][i3] = i;//Данный фрагмент теперь принадлежит зерну i
-									}
-								}
-							}
-							f++;
-							break;	//Раз нашли, то нет смысла проверять другие
-						}
-
+						int i1 = q1 > fragm_count - 1 ? q1 - fragm_count : q1;
+						int i2 = q2 > fragm_count - 1 ? q2 - fragm_count : q2;
+						int i3 = q3 > fragm_count - 1 ? q3 - fragm_count : q3;
+						double delta1 = ((double)rand() / RAND_MAX) * (PI / 60);
+						double delta2 = ((double)rand() / RAND_MAX) * (PI / 60);
+						C[i1][i2][i3].Orientate(a + delta1, g + delta2, y1, y2);
+						mass[i1][i2][i3] = i;
 					}
-
-
 				}
 			}
+
 		}
 
-		for (int q1 = 0; q1 < fragm_count; q1++)//Оставшиеся ни при делах просто становятся отдельными зёрнами
+		for (int q1 = 0; q1 < fragm_count; q1++)//Обработка фрагментов, не вошедших в состав зерен
 		{
 			for (int q2 = 0; q2 < fragm_count; q2++)
 			{
@@ -224,36 +176,49 @@ namespace model
 				{
 					if (mass[q1][q2][q3] == -1)
 					{
-						printf(" Single fragm [%d_%d_%d]\n", q1, q2, q3);
 						double a = ((double)rand() / RAND_MAX) * (PI);
 						double g = ((double)rand() / RAND_MAX) * (PI);
 						double y1 = ((double)rand() / RAND_MAX);
 						double y2 = ((double)rand() / RAND_MAX);
-						C[q1][q2][q3].Orientate(a, g, y1, y2);
-						mass[q1][q2][q3] = f++;
-
+						
 						Grain new_gr;
 						new_gr.center = get1DPos(q1, q2, q3);
-						new_gr.size = 1;
-						new_gr.num = mass[q1][q2][q3];
+						//Попытка образовать зерно размером 2
+						if (q1 < fragm_count - 1 && mass[q1 + 1][q2][q3] == -1 &&
+							q2 < fragm_count - 1 && mass[q1][q2 + 1][q3] == -1 &&
+							q3 < fragm_count - 1 && mass[q1][q2][q3 + 1] == -1)
+						{
+							for (int qq1 = q1; qq1 < q1 + 1; qq1++)
+							{
+								for (int qq2 = q2; qq2 < q2 + 1; qq2++)
+								{
+									for (int qq3 = q3; qq3 < q3 + 1; qq3++)
+									{
+										mass[qq1][qq2][qq3] = cnt++;
+										double delta1 = ((double)rand() / RAND_MAX) * (PI / 60);
+										double delta2 = ((double)rand() / RAND_MAX) * (PI / 60);
+										C[qq1][qq2][qq3].Orientate(a+delta1, g+delta2, y1, y2);
+									}
+								}
+							}
+							new_gr.size = 2;
+							new_gr.num = mass[q1][q2][q3];
+						}
+						else//В противном случае образуются единичные зерна
+						{
+							C[q1][q2][q3].Orientate(a, g, y1, y2);
+							mass[q1][q2][q3] = cnt++;
+							new_gr.size = 1;
+							new_gr.num = mass[q1][q2][q3];
+						}
+											
 						G.push_back(new_gr);
 					}
 				}
 			}
 		}
 
-		delete[] cryst_center;
-
-		/* (int i = 0; i < fragm_count; i++)
-		{
-		for (int j = 0; j < fragm_count; j++)
-		{
-		delete[] mass[i][j];
-		}
-		delete[] mass[i];
-		}
-		delete[] mass;*/
-		Save_Sort_Size();
+		Save_Sort_Size();//Вывод в файл данных о зернах
 	}
 
 	void Polycrystall::Illustrate()
@@ -279,10 +244,7 @@ namespace model
 				for (int q3 = 0; q3 < fragm_count; q3++)
 				{
 					int pos1 = get1DPos(q1, q2, q3);	//Позиция первого элемента
-					if (C[q1][q2][q3].crystall_center)
-					{
-						sm_matrix[pos1][pos1] = -2;		//Обозначение центра кристаллизации зерна
-					}
+					
 					for (int h = 0; h < prms::surround_count; h++)
 					{
 						if (C[q1][q2][q3].contact[h] == 0) continue;//Если фрагменты не контактируют

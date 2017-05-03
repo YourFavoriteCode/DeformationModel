@@ -28,7 +28,6 @@ namespace model
 		rot_H = 0;
 		rot_L = 0;
 		rot_energy = 0;
-		crystall_center = false;
 	}
 
 	Fragment::~Fragment()
