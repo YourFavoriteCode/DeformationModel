@@ -52,6 +52,7 @@ namespace model
 		void setParams();			//Распределение параметров фрагментов
 		void Deformate();			//Деформирование поликристалла
 		
+		void GrainRotate();			//Процедура ротаций на уровне зерен
 		void Fragmentate();			//Процедура фрагментации
 		void Illustrate();			//Сохранение в файл структурного графа
 		void SavePoleFig();			//Сохранение ПФ

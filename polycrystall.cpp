@@ -34,7 +34,7 @@ namespace model
 		file_count = 16;
 
 		tension_component = 0;
-		final_stress = 1e3;
+		final_stress = 1e4;
 		lam = 2.5;
 		addition_strain = 1e-5;
 	}
@@ -839,10 +839,11 @@ namespace model
 		}
 		else
 		{
+			TestStream[0] << final_stress / Stress * 100.0 << std::endl;
 			progress = final_stress / Stress * 100.0;	//Индикация при разгрузке
 		}
 
-		int period = unload ? proc_period/10 : proc_period;
+		int period = unload ? proc_period/40 : proc_period;
 
 		if (PROC_STEP == period)
 		{
@@ -1055,7 +1056,7 @@ namespace model
 
 			double StepEnergy = Sgm.doubleScalMult(dE);	//Полная энергия на шаге
 
-			TestStream[0] << RotCount << std::endl;
+			//TestStream[0] << RotCount << std::endl;
 			TestStream[1] << RotSpeed << std::endl;
 			TestStream[2] << RotEnergy << std::endl;
 			TestStream[3] << StepEnergy << std::endl;
@@ -1109,6 +1110,7 @@ namespace model
 			while (Strain < prms::strain_max)
 			{
 				Load(false);
+				GrainRotate();
 			}
 			/*	printf("\n START 2! \n");
 		//	D.set(0, 0.003, 0, 0.003, 0, 0, 0, 0, 0);//Простой сдвиг
