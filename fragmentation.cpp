@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "params.h"
+#include "rotations.h"
 #include <fstream>
 #include <vector>
 
@@ -87,9 +88,235 @@ namespace model
 		for (int i = 0; i < G.size(); i++)
 		{
 			if (G[i].size == 1) continue;		//Не ищем внутри единичных фрагментов
-
+			int i1, i2, i3;
+			get3DPos(G[i].center, &i1, &i2, &i3);//Получаем координаты угла зерна
+			for (int q1 = i1; q1 < i1 + G[i].size; q1++)
+			{
+				for (int q2 = i2; q2 < i2 + G[i].size; q2++)
+				{
+					for (int q3 = i3; q3 < i3 + G[i].size; q3++)
+					{
+						
+					}
+				}
+			}
 		}
 
+	}
+
+	void Polycrystall::GrainRotate()
+	{
+		//Бежим по всем внешним фасеткам зерна и вычисляем несовместность
+		//Здесь только большие фасетки учитываем
+		for (int i = 0; i < G.size(); i++)
+		{
+			if (G[i].size == 1) continue; //Единичные зерна сами по себе вращаются
+			int i1, i2, i3;
+			get3DPos(G[i].center, &i1, &i2, &i3);//Получаем координаты угла зерна
+			Tensor GrLp;	//Тензор скачка деформаций
+			Tensor d_in1[6], d_in2[6];
+			Vector normals[6];
+			//6 площадок
+			//0 - вверх, 1 - от нас, 2 - вправо, 3 - на нас, 4 - влево, 5 - вниз
+			Vector dM;
+			for (int qq1 = i1; qq1 < i1 + G[i].size; qq1++)
+			{
+				for (int qq2 = i2; qq2 < i2 + G[i].size; qq2++)
+				{
+					int q1 = qq1 > fragm_count - 1 ? qq1 - fragm_count : qq1;
+					int q2 = qq2 > fragm_count - 1 ? qq2 - fragm_count : qq2;
+					
+
+					normals[0] += C[q1][q2][i3].normals[5];
+					normals[1] += C[q1][q2][i3 + G[i].size].normals[0];
+					/*for (int i = 0; i < DIM; i++)
+					{
+						for (int j = 0; j < DIM; j++)
+						{
+							//Вниз
+							for (int k = 0; k < C[q1][q2][i3].SS_count; k++)
+							{
+							
+								if (C[q1][q2][i3].SS[k].b.ScalMult(C[q1][q2][i3].normals[5]) < 0) continue; //Скольжение от границы - вклад не вносится
+								d_in1[0].C[i][j] += C[q1][q2][i3].SS[k].dgm * (C[q1][q2][i3].SS[k].n.C[i] * C[q1][q2][i3].SS[k].b.C[j]);
+								
+							}
+							for (int k = 0; k < C[q1][q2][i3].surrounds[5].SS_count; k++)
+							{
+								d_in2[0].C[i][j] += C[q1][q2][i3].surrounds[5].SS[k].dgm * (C[q1][q2][i3].surrounds[5].SS[k].n.C[i] * C[q1][q2][i3].surrounds[5].SS[k].b.C[j]);
+							}
+							//Вверх
+							int k3 = i3 + G[i].size;
+							for (int k = 0; k < C[q1][q2][k3].SS_count; k++)
+							{
+
+								if (C[q1][q2][k3].SS[k].b.ScalMult(C[q1][q2][k3].normals[0]) < 0) continue; //Скольжение от границы - вклад не вносится
+								d_in1[1].C[i][j] += C[q1][q2][k3].SS[k].dgm * (C[q1][q2][k3].SS[k].n.C[i] * C[q1][q2][k3].SS[k].b.C[j]);
+
+							}
+							for (int k = 0; k < C[q1][q2][k3].surrounds[0].SS_count; k++)
+							{
+								d_in2[1].C[i][j] += C[q1][q2][k3].surrounds[0].SS[k].dgm * (C[q1][q2][k3].surrounds[0].SS[k].n.C[i] * C[q1][q2][k3].surrounds[0].SS[k].b.C[j]);
+							}
+							
+						}
+					}*/
+					
+				}
+			}
+
+		/*	for (int q1 = i1; q1 < i1 + G[i].size; q1++)
+			{
+				for (int q3 = i3; q3 < i3 + G[i].size; q3++)
+				{
+					normals[2] += C[q1][i2][q3].normals[4];
+					normals[3] += C[q1][i2 + G[i].size][q3].normals[2];
+					for (int i = 0; i < DIM; i++)
+					{
+						for (int j = 0; j < DIM; j++)
+						{
+							//Влево
+							for (int k = 0; k < C[q1][i2][q3].SS_count; k++)
+							{
+
+								if (C[q1][i2][q3].SS[k].b.ScalMult(C[q1][i2][q3].normals[4]) < 0) continue; //Скольжение от границы - вклад не вносится
+								d_in1[2].C[i][j] += C[q1][i2][q3].SS[k].dgm * (C[q1][i2][q3].SS[k].n.C[i] * C[q1][i2][q3].SS[k].b.C[j]);
+
+							}
+							for (int k = 0; k < C[q1][i2][q3].surrounds[4].SS_count; k++)
+							{
+								d_in2[2].C[i][j] += C[q1][i2][q3].surrounds[4].SS[k].dgm * (C[q1][i2][q3].surrounds[4].SS[k].n.C[i] * C[q1][i2][q3].surrounds[4].SS[k].b.C[j]);
+							}
+							//Вправо
+							int k2 = i2 + G[i].size;
+							for (int k = 0; k < C[q1][k2][i3].SS_count; k++)
+							{
+
+								if (C[q1][k2][i3].SS[k].b.ScalMult(C[q1][k2][i3].normals[2]) < 0) continue; //Скольжение от границы - вклад не вносится
+								d_in1[3].C[i][j] += C[q1][k2][i3].SS[k].dgm * (C[q1][k2][i3].SS[k].n.C[i] * C[q1][k2][i3].SS[k].b.C[j]);
+
+							}
+							for (int k = 0; k < C[q1][k2][i3].surrounds[2].SS_count; k++)
+							{
+								d_in2[3].C[i][j] += C[q1][k2][i3].surrounds[2].SS[k].dgm * (C[q1][k2][i3].surrounds[2].SS[k].n.C[i] * C[q1][k2][i3].surrounds[2].SS[k].b.C[j]);
+							}
+
+						}
+					}
+
+				}
+			}
+			for (int q2 = i1; q2 < i2 + G[i].size; q2++)
+			{
+				for (int q3 = i3; q3 < i3 + G[i].size; q3++)
+				{
+					normals[4] += C[i1][q2][q3].normals[1];
+					normals[5] += C[i1 + G[i].size][q2][q3].normals[3];
+					for (int i = 0; i < DIM; i++)
+					{
+						for (int j = 0; j < DIM; j++)
+						{
+							//От нас
+							for (int k = 0; k < C[i1][q2][q3].SS_count; k++)
+							{
+
+								if (C[i1][q2][q3].SS[k].b.ScalMult(C[i1][q2][q3].normals[1]) < 0) continue; //Скольжение от границы - вклад не вносится
+								d_in1[4].C[i][j] += C[i1][q2][q3].SS[k].dgm * (C[i1][q2][q3].SS[k].n.C[i] * C[i1][q2][q3].SS[k].b.C[j]);
+
+							}
+							for (int k = 0; k < C[i1][q2][q3].surrounds[1].SS_count; k++)
+							{
+								d_in2[4].C[i][j] += C[i1][q2][q3].surrounds[1].SS[k].dgm * (C[i1][q2][q3].surrounds[1].SS[k].n.C[i] * C[i1][q2][q3].surrounds[1].SS[k].b.C[j]);
+							}
+							//На нас
+							int k1 = i1 + G[i].size;
+							for (int k = 0; k < C[k1][q2][q3].SS_count; k++)
+							{
+
+								if (C[k1][q2][q3].SS[k].b.ScalMult(C[k1][q2][q3].normals[3]) < 0) continue; //Скольжение от границы - вклад не вносится
+								d_in1[5].C[i][j] += C[k1][q2][q3].SS[k].dgm * (C[k1][q2][q3].SS[k].n.C[i] * C[k1][q2][q3].SS[k].b.C[j]);
+
+							}
+							for (int k = 0; k < C[k1][q2][q3].surrounds[3].SS_count; k++)
+							{
+								d_in2[5].C[i][j] += C[k1][q2][q3].surrounds[3].SS[k].dgm * (C[k1][q2][q3].surrounds[3].SS[k].n.C[i] * C[k1][q2][q3].surrounds[3].SS[k].b.C[j]);
+							}
+
+						}
+					}
+
+				}
+			}*/
+
+		/*	double S = prms::fragm_size_m*prms::fragm_size_m*G[i].size*G[i].size;//Площадь крупной фасетки зерна
+			int volume = C[i1][i2][i3].volume*pow(G[i].size, 3);//Объем зерна
+			for (int p = 0; p < 6; p++)
+			{
+				normals[p].Normalize();
+				Tensor Lp = d_in1[p] - d_in2[p];
+				Lp.Transp();
+				Tensor buf = VectMult(normals[p], Lp);
+				Vector dm = ScalMult(buf, normals[p]);//Поверхностный вектор-момент
+				dm *= prms::ROT_L;
+				dM += dm*S;
+			}
+			
+			dM /= volume;
+			double dMnorm = dM.getNorm();*/
+			Vector M = /*f->moment + */dM*prms::dt;//Пока что не накапливается
+			//f->moment = M;
+			/*double norm = M.getNorm();
+			
+			if (norm > prms::ROT_MC || norm == -1)
+			{
+				norm = prms::ROT_MC;
+			}
+
+			double pr = M.ScalMult(dM);
+
+			double dFi = 0;		//Скорость вращения
+			if (norm == prms::ROT_MC && pr >= 0)	//Пластические и упругие развороты
+			{
+				dFi = prms::ROT_A * dMnorm + prms::ROT_H * norm;
+			}
+			else
+			{
+				dFi = prms::ROT_A * dMnorm;		//Только упругие развороты
+			}
+
+			Vector e = M;
+			Tensor OM;
+			if (dFi > EPS*1e4)
+			{
+				e.Normalize();
+				dFi *= prms::dt;
+			
+				for (int i = 0; i < DIM; i++)
+				{
+					for (int j = 0; j < DIM; j++)
+					{
+						for (int k = 0; k < DIM; k++)
+						{
+							OM.C[i][j] -= LeviCivit(i, j, k) * e.C[k] * dFi;
+						}
+					}
+				}
+
+			}*/
+		
+			/*for (int q1 = i1; q1 < i1 + G[i].size; q1++)
+			{
+				for (int q2 = i2; q2 < i2 + G[i].size; q2++)
+				{
+					for (int q3 = i3; q3 < i3 + G[i].size; q3++)
+					{
+						C[q1][q2][q3].om += OM;
+						Rotate(&C[q1][q2][q3], dFi, e);
+					}
+				}
+			}*/
+
+		}
 	}
 
 	void Polycrystall::MakeGrains()
