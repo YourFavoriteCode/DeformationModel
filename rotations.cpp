@@ -167,22 +167,7 @@ namespace model
 			f->rot_energy = norm*dFi;	//Считаем энергию ротаций
 
 			f->om.setZero();			//Спин решётки
-			/*for (int i = 0; i < DIM; i++)//Спин решётки (Часть от Тейлора)
-			{
-				for (int j = 0; j < DIM; j++)
-				{
-					
-					for (int k = 0; k < f->SS_count; k++)
-					{
-						f->om.C[i][j] -= f->SS[k].dgm * (f->SS[k].n.C[i] * f->SS[k].b.C[j] - f->SS[k].b.C[i] * f->SS[k].n.C[j]);
-					}
-					f->om.C[i][j] /= 2.0;
-				
-				}
-			}
-			f->om += f->w;
-			*/
-			for (int i = 0; i < DIM; i++)    //Спин решётки (Вторая часть)
+			for (int i = 0; i < DIM; i++)
 			{
 				for (int j = 0; j < DIM; j++)
 				{
