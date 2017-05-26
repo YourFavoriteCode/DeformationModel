@@ -622,6 +622,7 @@ namespace model
 			dbgstream[i] << "#########################      STEP " << CURR_STEP << "      #########################" << std::endl << std::endl;
 		}
 
+		//Запись тензоров каждого из зерен или фрагментов
 		for (int q1 = 0; q1 < fragm_count; q1++)
 		{
 			for (int q2 = 0; q2 < fragm_count; q2++)
@@ -650,6 +651,7 @@ namespace model
 				}
 			}
 		}
+		//Запись тензоров представительного объема
 		WriteDebugInfo(dbgstream[10], D.C);
 		WriteDebugInfo(dbgstream[11], D_in.C);
 		WriteDebugInfo(dbgstream[12], Sgm.C);
@@ -681,20 +683,17 @@ namespace model
 			D_in /= (total_fragm_count);
 			P /= (total_fragm_count);
 
-			//Симметризация
+			//Симметризация тензора упругих констант
 			P.Symmetrize();
 
 			D = !unload ? TensionStrainCalc(P, D_in, D.C[0][0]) : UnloadingStrainCalc(P, D_in, Sgm, lam);
 
-			Strain = E.doubleScalMult(E);
-			Strain = SQRT2_3*sqrt(Strain);
-
-			dSgm = TensionStressCalc(P, D_in, D);//Вычисление интенсивности напряжений
-			dSgm *= prms::dt;				//Приращение напряжений на шаге
-			Sgm += dSgm;
-		//	buf = Sgm;
-			Stress = Sgm.doubleScalMult(Sgm);
-			Stress = SQRT3_2*sqrt(Stress);
+			Strain = SQRT2_3*sqrt(E.doubleScalMult(E));//Вычисление интенсивности деформаций
+			
+			dSgm = TensionStressCalc(P, D_in, D);
+			//dSgm *= prms::dt;				//Приращение напряжений на шаге
+			Sgm += dSgm*prms::dt;
+			Stress = SQRT3_2*sqrt(Sgm.doubleScalMult(Sgm));//Вычисление интенсивности напряжений
 		}
 		else
 		{
@@ -813,9 +812,13 @@ namespace model
 			if (!(prms::cycle_count == 1 || cycle == 0))	//Для многоцикловых нагружений
 			{
 				progress /= 2.0;
-				if (E.C[0][0] > 0)					//Этот код позволяет корректно
-				{									//отображать прогресс выполнения,
-					if (Sgm.C[0][0] > 0)			//когда на графике петли циклические
+				/************************************************
+				*Этот код позволяет корректно отображать прогресс
+				*выполнения во время циклических нагружений
+				*************************************************/
+				if (E.C[0][0] > 0)
+				{
+					if (Sgm.C[0][0] > 0)
 					{
 						progress += 50.0;
 					}
@@ -840,7 +843,7 @@ namespace model
 		else
 		{
 			TestStream[0] << final_stress / Stress * 100.0 << std::endl;
-			progress = final_stress / Stress * 100.0;	//Индикация при разгрузке
+			progress = final_stress / Stress * 100.0;	//Индикация прогресса при разгрузке
 		}
 
 		int period = unload ? proc_period/40 : proc_period;
@@ -858,18 +861,7 @@ namespace model
 
 		if ((progress - PLOT_STEP > prms::plot_period || unload) && prms::plot_period > 0)
 		{
-			/*if (!prms::REAL_UNIAX && !unload)
-			{
-				Datastream[0].write((char *)&Strain, sizeof Strain);
-				Datastream[1].write((char *)&Stress, sizeof Stress);
-			}
-			else
-			{
-				Datastream[0].write((char *)&E.C[0][0], sizeof E.C[0][0]);
-				Datastream[1].write((char *)&Sgm.C[0][0], sizeof Sgm.C[0][0]);
-			}*/
-
-			if (prms::SaveMacro)
+			if (prms::SaveMacro)	//Запись компонент тензоров макроуровня
 			{
 				if (prms::SaveIntense)
 				{
@@ -923,7 +915,7 @@ namespace model
 				}
 			}
 
-			if (prms::SaveMeso)
+			if (prms::SaveMeso)	//Запись компонент тензоров мезоуровня
 			{
 				for (int q1 = 0; q1 < fragm_count; q1++)
 				{
@@ -1003,17 +995,6 @@ namespace model
 				{
 					for (int q3 = 0; q3 < fragm_count; q3++)
 					{
-					/*	if (!prms::REAL_UNIAX && !unload)
-						{
-							Datastream[2].write((char *)&C[q1][q2][q3].strain, sizeof C[q1][q2][q3].strain);
-							Datastream[3].write((char *)&C[q1][q2][q3].stress, sizeof C[q1][q2][q3].stress);
-						}
-						else
-						{
-							Datastream[2].write((char *)&C[q1][q2][q3].e.C[0][0], sizeof C[q1][q2][q3].e.C[0][0]);
-							Datastream[3].write((char *)&C[q1][q2][q3].sgm.C[0][0], sizeof C[q1][q2][q3].sgm.C[0][0]);
-						}*/
-
 						for (int i = 0; i < C[q1][q2][q3].SS_count; i++)
 						{
 							if (C[q1][q2][q3].SS[i].dgm > EPS) ActiveSysCount++;//Подсчёт активных СС
@@ -1090,16 +1071,24 @@ namespace model
 	}
 
 	void Polycrystall::Deformate()
+		/****************************************
+		*Функция деформирования представительного 
+		*объема поликристала. 
+		*****************************************/
 	{
-		omp_set_num_threads(prms::thread_count);
+		omp_set_num_threads(prms::thread_count);	//Кол-во используемых потоков
 
 		if (prms::REAL_UNIAX)
 		{
-			tension_component = D.C[0][0];
+			/***************************************************
+			*Выбор растягивающей компоненты тензора D.
+			*Относительно неё на каждом шаге будет решаться СЛАУ 
+			***************************************************/
+			tension_component = D.C[0][0];			
 		}
 		for (cycle = 0; cycle < prms::cycle_count; cycle++)
 		{
-			PLOT_STEP = 0;
+			PLOT_STEP = 0;		//Обнуление счетчиков для периодического вывода данных в файлы
 			POLUS_STEP = 0;
 			PROC_STEP = 0;
 			if (prms::cycle_count > 1)
@@ -1107,11 +1096,16 @@ namespace model
 				printf("\n Loading #%d", cycle + 1);
 			}
 			printf("\n        00.00%");
-			while (Strain < prms::strain_max)
+			double* counter;
+			counter = !prms::REAL_UNIAX ? &Strain : &E.C[0][0];
+			//Для циклических нагружений цикл ведется по значению растягивающей компоненты
+			//а для остальных - по значению интенсивности тензора деформации
+			while (fabs(*counter) < prms::strain_max)	//Цикл по деформациям
 			{
 				Load(false);
-				GrainRotate();
+				if (prms::FRAGMENTATION) GrainRotate();
 			}
+			
 			/*	printf("\n START 2! \n");
 		//	D.set(0, 0.003, 0, 0.003, 0, 0, 0, 0, 0);//Простой сдвиг
 		//	W.setZero();
@@ -1124,20 +1118,22 @@ namespace model
 			}*/
 			
 		
-			if (prms::UNLOADING)
+			if (prms::UNLOADING)	//Упругая разгрузка
 			{
 				printf("\n Unloading #%d", cycle + 1);
 				printf("\n        00.00%");
-				while (fabs(Stress) > final_stress)
+				while (fabs(Stress) > final_stress) //Цикл по напряжениям
 				{
 					 Load(true);
 				}
 			}
-			if (prms::cycle_count > 1)
+		
+			if (prms::cycle_count > 1)	//Цикоическое знакопеременное нагружение
 			{
 				D.C[0][0] = pow(-1, cycle + 1) * tension_component;	//Меняем знак растягивающей компоненты
-				prms::strain_max += prms::strain_max * addition_strain;					//Повышаем предел интенсивности
+				prms::strain_max += prms::strain_max * addition_strain;	//Повышаем предел интенсивности
 			}
+			
 			if (prms::FRAGMENTATION) Fragmentate();
 		
 		}
