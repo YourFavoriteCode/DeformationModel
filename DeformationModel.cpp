@@ -47,6 +47,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	const int total_fragm_count = (int)pow(prms::fragm_count, 3);	//Общее кол-во фрагментов
 	printf(" Fragments count: %d\n", total_fragm_count);
 	printf(" Max. strain: %g\n", prms::strain_max);
+	if (prms::cycle_count != 1)
+	{
+		printf(" Number of cycles: %d\n", prms::cycle_count);
+	}
 	printf(" Integration step: %g\n", prms::dt);
 	if (prms::ROTATIONS_HARDENING)
 	{
