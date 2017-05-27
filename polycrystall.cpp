@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include <cmath>
+#include <ctime>
 #include <omp.h>
 #include <fstream>
 
@@ -807,7 +808,8 @@ namespace model
 		double progress;
 		if (!unload)
 		{
-			progress = Strain / prms::strain_max * 100.0;
+			progress = prms::REAL_UNIAX ? fabs(E.C[0][0]) : Strain;
+			progress = progress / prms::strain_max * 100.0;
 
 			if (!(prms::cycle_count == 1 || cycle == 0))	//Для многоцикловых нагружений
 			{
@@ -842,8 +844,7 @@ namespace model
 		}
 		else
 		{
-			TestStream[0] << final_stress / Stress * 100.0 << std::endl;
-			progress = final_stress / Stress * 100.0;	//Индикация прогресса при разгрузке
+			progress = final_stress / fabs(Sgm.C[0][0]) * 100.0;	//Индикация прогресса при разгрузке
 		}
 
 		int period = unload ? proc_period/40 : proc_period;
@@ -1088,24 +1089,32 @@ namespace model
 		}
 		for (cycle = 0; cycle < prms::cycle_count; cycle++)
 		{
+			unsigned long t1, t2;
+
 			PLOT_STEP = 0;		//Обнуление счетчиков для периодического вывода данных в файлы
 			POLUS_STEP = 0;
 			PROC_STEP = 0;
 			if (prms::cycle_count > 1)
 			{
 				printf("\n Loading #%d", cycle + 1);
+				t1 = clock();		//Начальная отсечка времени
 			}
 			printf("\n        00.00%");
 			double* counter;
 			counter = !prms::REAL_UNIAX ? &Strain : &E.C[0][0];
 			//Для циклических нагружений цикл ведется по значению растягивающей компоненты
 			//а для остальных - по значению интенсивности тензора деформации
+			
 			while (fabs(*counter) < prms::strain_max)	//Цикл по деформациям
 			{
 				Load(false);
 				if (prms::FRAGMENTATION) GrainRotate();
 			}
-			
+			if (prms::cycle_count > 1)
+			{
+				t2 = clock();		//Конечная отсечка времени
+				printf("\b\b\b\b\b\bDone in %g sec", (t2 - t1) / 1000.0);
+			}
 			/*	printf("\n START 2! \n");
 		//	D.set(0, 0.003, 0, 0.003, 0, 0, 0, 0, 0);//Простой сдвиг
 		//	W.setZero();
@@ -1122,10 +1131,13 @@ namespace model
 			{
 				printf("\n Unloading #%d", cycle + 1);
 				printf("\n        00.00%");
-				while (fabs(Stress) > final_stress) //Цикл по напряжениям
+				t1 = clock();		//Начальная отсечка времени
+				while (fabs(Sgm.C[0][0]) > final_stress) //Цикл по напряжениям
 				{
 					 Load(true);
 				}
+				t2 = clock();		//Конечная отсечка времени
+				printf("\b\b\b\b\b\bDone in %g sec", (t2 - t1) / 1000.0);
 			}
 		
 			if (prms::cycle_count > 1)	//Цикоическое знакопеременное нагружение
