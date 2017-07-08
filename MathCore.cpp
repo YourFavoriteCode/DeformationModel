@@ -505,6 +505,7 @@ namespace model
 	{
 		t = 0;
 		tc = 0;
+		tbs = 0;
 		dgm = 0;
 		gmm = 0;
 	}

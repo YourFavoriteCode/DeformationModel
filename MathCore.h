@@ -117,7 +117,7 @@ namespace model
 		double tc;						//Критическое касательное напряжение
 		double dgm;						//Скорость сдвига
 		double gmm;						//Накопленный сдвиг
-
+		double tbs;						//Обратные касательные напряжения
 		void Initialize(float, float, float,
 			float, float, float);	//Инициализация значений
 		void Initialize(float, float, float, float,

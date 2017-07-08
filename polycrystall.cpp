@@ -734,7 +734,7 @@ namespace model
 					Tensor OT = O;
 					OT.Transp();
 					C[q1][q2][q3].d = O*D*OT;//Гипотеза Фойгта
-					C[q1][q2][q3].w = O*W*OT - C[q1][q2][q3].om;//Расширенная
+					C[q1][q2][q3].w = O*W*OT /*- C[q1][q2][q3].om*/;//Расширенная
 
 					C[q1][q2][q3].sgm = O*C[q1][q2][q3].sgm*OT;
 					C[q1][q2][q3].d_in = O*C[q1][q2][q3].d_in*OT;
@@ -776,6 +776,7 @@ namespace model
 
 					C[q1][q2][q3].sgm = OT*C[q1][q2][q3].sgm*O;
 					C[q1][q2][q3].d_in = OT*C[q1][q2][q3].d_in*O;
+					C[q1][q2][q3].iter++;
 				}
 			}
 		}
@@ -859,9 +860,11 @@ namespace model
 		/************************************************************
 		***********	    Запись данных для графиков НДС    ***********
 		************************************************************/
-
+		
 		if ((progress - PLOT_STEP > prms::plot_period || unload) && prms::plot_period > 0)
 		{
+			BoundsAnalize();		//Подсчет доли большеугловых границ
+
 			if (prms::SaveMacro)	//Запись компонент тензоров макроуровня
 			{
 				if (prms::SaveIntense)
@@ -1036,13 +1039,13 @@ namespace model
 			Tensor dE = D;
 			dE *= prms::dt;			//Приращение деформации на шаге
 
-			double StepEnergy = Sgm.doubleScalMult(dE);	//Полная энергия на шаге
-
-			//TestStream[0] << RotCount << std::endl;
+			double StepEnergy = Sgm.doubleScalMult(D);	//Полная энергия на шаге
+			double StepEnergy_in = Sgm.doubleScalMult(D_in);	//Полная энергия на шаге
+			TestStream[0] << RotCount << std::endl;
 			TestStream[1] << RotSpeed << std::endl;
 			TestStream[2] << RotEnergy << std::endl;
 			TestStream[3] << StepEnergy << std::endl;
-			TestStream[4] << Mc << std::endl;
+			TestStream[4] << StepEnergy_in << std::endl;
 			TestStream[5] << norma << std::endl;
 
 			PLOT_STEP = progress;
@@ -1108,25 +1111,26 @@ namespace model
 			while (fabs(*counter) < prms::strain_max)	//Цикл по деформациям
 			{
 				Load(false);
-				if (prms::FRAGMENTATION) GrainRotate();
+				//if (prms::FRAGMENTATION) GrainRotate();
 			}
 			if (prms::cycle_count > 1)
 			{
 				t2 = clock();		//Конечная отсечка времени
 				printf("\b\b\b\b\b\bDone in %g sec", (t2 - t1) / 1000.0);
 			}
-			/*	printf("\n START 2! \n");
-		//	D.set(0, 0.003, 0, 0.003, 0, 0, 0, 0, 0);//Простой сдвиг
+				printf("\n START 2! \n");
+			D.set(0, 0.003, 0, 0.003, 0, 0, 0, 0, 0);//Простой сдвиг
 		//	W.setZero();
-			//D.set(-0.003, 0.003, 0, -0.003, 0.003, 0, 0, 0, 0);//РКУП
-		//	D.set(0.003, 0, 0, 0, 0.015, 0, 0, 0, 0.015);//Одноосье
+		//	D.set(-0.003, 0.003, 0, -0.003, 0.003, 0, 0, 0, 0);//РКУП
+			D.set(0.003, 0, 0, 0, -0.0015, 0, 0, 0, -0.0015);//Одноосье
 			prms::strain_max += prms::strain_max;
-			while (Strain < prms::strain_max)
+			
+			while (fabs(*counter) < prms::strain_max)
 			{
 				Load(false);
-			}*/
+			}
 			
-		
+	
 			if (prms::UNLOADING)	//Упругая разгрузка
 			{
 				printf("\n Unloading #%d", cycle + 1);

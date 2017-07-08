@@ -28,6 +28,7 @@ namespace model
 		rot_H = 0;
 		rot_L = 0;
 		rot_energy = 0;
+		iter = 0;
 	}
 
 	Fragment::~Fragment()
@@ -445,8 +446,17 @@ namespace model
 			/************************************************************
 			***********      Соотношение Хатчинсона          ************
 			************************************************************/
-			SS[k].dgm = prms::dgm0 * pow(SS[k].t / SS[k].tc, prms::m) * H(SS[k].t - SS[k].tc);
+		/*	if (iter % 100 == 0)
+			{
+				FILE* G_File = fopen("Plot\\TBS.txt", "a+");
 
+				//fprintf(G_File, "%f  \n", (SS[k].t - fabs(SS[k].tbs) - SS[k].tc));
+
+				fclose(G_File);
+			}*/
+		//	SS[k].dgm = prms::dgm0 * pow((SS[k].t -(SS[k].tbs)) / SS[k].tc, prms::m) * H(SS[k].t - (SS[k].tbs) /*- SS[k].tc*/);
+			SS[k].dgm = prms::dgm0 * pow(SS[k].t / SS[k].tc, prms::m) * H(SS[k].t - SS[k].tc);
+																											
 			SS[k].gmm += SS[k].dgm * prms::dt; //Сдвиг по СС
 		}
 		/************************************************************

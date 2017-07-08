@@ -67,7 +67,7 @@ namespace model
 		Fragment();
 		~Fragment();
 
-
+		unsigned int iter;
 	private:
 
 	};
