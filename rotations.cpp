@@ -66,7 +66,7 @@ namespace model
 		
 		
 		double dFi = e.getNorm();
-		f->isRotate = dFi > EPS;
+		f->isRotate = dFi > EPS*1000;
 		if (f->isRotate)
 		{
 			f->rot_speed = dFi;

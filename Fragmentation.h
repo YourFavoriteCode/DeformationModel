@@ -18,6 +18,7 @@ namespace model
 		int num;		//Порядковый номер
 		int center;		//Центр кристаллизации
 		int size;		//Характерный размер
+
 	};
 
 

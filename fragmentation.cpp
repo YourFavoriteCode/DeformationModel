@@ -446,6 +446,94 @@ namespace model
 		}
 
 		Save_Sort_Size();//Вывод в файл данных о зернах
+		fopen("Plot\\HBounds.txt", "w");	//Очистка файла с долей большеугловых границ
+	}
+
+	void Polycrystall::MakeGrains2()
+	{
+		int size = prms::Grain_size;
+		mass = new int**[fragm_count];
+		for (int i = 0; i < fragm_count; i++)
+		{
+			mass[i] = new int*[fragm_count];
+			for (int j = 0; j < fragm_count; j++)
+			{
+				mass[i][j] = new int[fragm_count];
+			}
+		}
+
+		for (int q1 = 0; q1 < fragm_count; q1++)
+		{
+			for (int q2 = 0; q2 < fragm_count; q2++)
+			{
+				for (int q3 = 0; q3 < fragm_count; q3++)
+				{
+					mass[q1][q2][q3] = -1;//Вначале все фрагменты никому не принадлежат
+				}
+			}
+		}
+		int cnt = 0;
+		for (int q1 = 0; q1 < fragm_count; q1+=size)
+		{
+			for (int q2 = 0; q2 < fragm_count; q2+=size)
+			{
+				for (int q3 = 0; q3 < fragm_count; q3+=size)
+				{
+					double a = ((double)rand() / RAND_MAX) * (PI);
+					double g = ((double)rand() / RAND_MAX) * (PI);
+					double y1 = ((double)rand() / RAND_MAX);
+					double y2 = ((double)rand() / RAND_MAX);
+
+					Grain new_gr;
+					new_gr.center = get1DPos(q1, q2, q3);
+					cnt++;
+					for (int qq1 = q1; qq1 < q1 + size; qq1++)
+					{
+						for (int qq2 = q2; qq2 < q2 + size; qq2++)
+						{
+							for (int qq3 = q3; qq3 < q3 + size; qq3++)
+							{
+								mass[qq1][qq2][qq3] = cnt;
+								double delta1 = 0;// ((double)rand() / RAND_MAX) * (PI / 60);
+								double delta2 = 0;//((double)rand() / RAND_MAX) * (PI / 60);
+								C[qq1][qq2][qq3].Orientate(a + delta1, g + delta2, y1, y2);
+							}
+						}
+					}
+					new_gr.size = size;
+					new_gr.num = mass[q1][q2][q3];
+
+					G.push_back(new_gr);
+				}
+			}
+		}
+		Save_Sort_Size();//Вывод в файл данных о зернах
+		fopen("Plot\\HBounds.txt", "w");	//Очистка файла с долей большеугловых границ
+	}
+	
+	void Polycrystall::BoundsAnalize()
+	{
+		double TOTAL_BOUNDS = pow(fragm_count, 3) * prms::surround_count;	//Всего фасеток
+		int HIGH_ANGLE = 0;
+		double M = 0.09;		//Мера для границы наклона 10 градусов
+		for (int q1 = 0; q1 < fragm_count; q1++)
+		{
+			for (int q2 = 0; q2 < fragm_count; q2++)
+			{
+				for (int q3 = 0; q3 < fragm_count; q3++)
+				{
+					for (int h = 0; h < prms::surround_count; h++)	//Цикл по фасеткам			
+					{
+						double mesure = C[q1][q2][q3].DisorientMeasure(h);
+						if (mesure > M) HIGH_ANGLE++;
+					}
+				}
+			}
+		}
+		double res = HIGH_ANGLE / 2.0 / TOTAL_BOUNDS;
+		FILE* G_File = fopen("Plot\\HBounds.txt", "a+");
+		if (G_File != NULL) fprintf(G_File, "%f ", res);
+		fclose(G_File);
 	}
 
 	void Polycrystall::Illustrate()
