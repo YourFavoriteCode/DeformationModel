@@ -103,8 +103,6 @@ namespace model
 		Tensor();
 		~Tensor();
 
-		Tensor Orientate(double, Vector);
-
 	private:
 
 	};
