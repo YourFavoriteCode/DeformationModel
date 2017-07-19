@@ -303,6 +303,41 @@ namespace model
 		return res;
 	}
 	
+	void Tensor::RotMatr(double fi, Vector v)
+	{
+		double c = cos(fi);
+		double s = sin(fi);
+		double cf = (1 - c);
+
+		C[0][0] = c + cf * v.C[0] * v.C[0];
+		C[0][1] = cf * v.C[0] * v.C[1] - s * v.C[2];
+		C[0][2] = cf * v.C[0] * v.C[2] + s * v.C[1];
+
+		C[1][0] = cf * v.C[0] * v.C[1] + s * v.C[2];
+		C[1][1] = c + cf * v.C[1] * v.C[1];
+		C[1][2] = cf * v.C[1] * v.C[2] - s * v.C[0];
+
+		C[2][0] = cf * v.C[0] * v.C[2] - s * v.C[1];
+		C[2][1] = cf * v.C[1] * v.C[2] + s * v.C[0];
+		C[2][2] = c + cf * v.C[2] * v.C[2];
+	}
+
+	void Tensor::getAxisAngle(double* fi, Vector* v)
+	{
+		double tr = C[0][0] + C[1][1] + C[2][2];
+		double theta = acos((tr - 1) * 0.5);
+
+		double omprecalc = 1.0 / (2 * sin(theta));
+
+		Vector w;
+		w.C[0] = omprecalc * (C[2][1] - C[1][2]);
+		w.C[1] = omprecalc * (C[0][2] - C[2][0]);
+		w.C[2] = omprecalc * (C[1][0] - C[0][1]);
+
+		*fi = theta;
+		*v = w;
+	}
+
 	Tensor::Tensor()
 	{
 		for (int i = 0; i < DIM; i++)
