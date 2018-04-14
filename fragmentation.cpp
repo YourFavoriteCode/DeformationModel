@@ -104,6 +104,11 @@ namespace model
 
 	}
 
+	void Polycrystall::Split()
+	{
+
+	}
+
 	void Polycrystall::GrainRotate()
 	{
 		//Бежим по всем внешним фасеткам зерна и вычисляем несовместность
@@ -376,6 +381,7 @@ namespace model
 			double g = ((double)rand() / RAND_MAX) * (PI);
 			double y1 = ((double)rand() / RAND_MAX);
 			double y2 = ((double)rand() / RAND_MAX);
+			double cb = y1 > 0.5 ? y2 : -y2;
 			for (int q1 = rnd1; q1 < rnd1 + G[i].size; q1++)
 			{
 				for (int q2 = rnd2; q2 < rnd2 + G[i].size; q2++)
@@ -387,7 +393,7 @@ namespace model
 						int i3 = q3 > fragm_count - 1 ? q3 - fragm_count : q3;
 						double delta1 = ((double)rand() / RAND_MAX) * (PI / 60);
 						double delta2 = ((double)rand() / RAND_MAX) * (PI / 60);
-						C[i1][i2][i3].Orientate(a + delta1, g + delta2, y1, y2);
+						C[i1][i2][i3].Orientate(a + delta1, g + delta2, cb);
 						mass[i1][i2][i3] = i;
 					}
 				}
@@ -407,7 +413,7 @@ namespace model
 						double g = ((double)rand() / RAND_MAX) * (PI);
 						double y1 = ((double)rand() / RAND_MAX);
 						double y2 = ((double)rand() / RAND_MAX);
-						
+						double cb = y1 > 0.5 ? y2 : -y2;
 						Grain new_gr;
 						new_gr.center = get1DPos(q1, q2, q3);
 						//Попытка образовать зерно размером 2
@@ -424,7 +430,7 @@ namespace model
 										mass[qq1][qq2][qq3] = cnt++;
 										double delta1 = ((double)rand() / RAND_MAX) * (PI / 60);
 										double delta2 = ((double)rand() / RAND_MAX) * (PI / 60);
-										C[qq1][qq2][qq3].Orientate(a+delta1, g+delta2, y1, y2);
+										C[qq1][qq2][qq3].Orientate(a+delta1, g+delta2, cb);
 									}
 								}
 							}
@@ -433,7 +439,7 @@ namespace model
 						}
 						else//В противном случае образуются единичные зерна
 						{
-							C[q1][q2][q3].Orientate(a, g, y1, y2);
+							C[q1][q2][q3].Orientate(a, g, cb);
 							mass[q1][q2][q3] = cnt++;
 							new_gr.size = 1;
 							new_gr.num = mass[q1][q2][q3];
@@ -483,7 +489,7 @@ namespace model
 					double g = ((double)rand() / RAND_MAX) * (PI);
 					double y1 = ((double)rand() / RAND_MAX);
 					double y2 = ((double)rand() / RAND_MAX);
-
+					double cb = y1 > 0.5 ? y2 : -y2;
 					Grain new_gr;
 					new_gr.center = get1DPos(q1, q2, q3);
 					cnt++;
@@ -496,7 +502,7 @@ namespace model
 								mass[qq1][qq2][qq3] = cnt;
 								double delta1 = 0;// ((double)rand() / RAND_MAX) * (PI / 60);
 								double delta2 = 0;//((double)rand() / RAND_MAX) * (PI / 60);
-								C[qq1][qq2][qq3].Orientate(a + delta1, g + delta2, y1, y2);
+								C[qq1][qq2][qq3].Orientate(a + delta1, g + delta2, cb);
 							}
 						}
 					}

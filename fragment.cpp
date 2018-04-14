@@ -33,7 +33,7 @@ namespace model
 
 	Fragment::~Fragment()
 	{
-	
+
 	}
 
 	int inline H(double a)		//Функция Хэвисайда
@@ -42,14 +42,13 @@ namespace model
 	}
 
 	void Fragment::Orientate(double a, double g,
-		double y1, double y2)
+		double cb)
 	{
 		/*
 		* Функция задаёт ориентацию решётки на основе двух
-		* углов и двух случайных чисел, генерируя равномерное 
+		* углов и двух случайных чисел, генерируя равномерное
 		* распределение косинуса третьего угла
 		*/
-		double cb = y1 > 0.5 ? y2 : -y2;
 		double sb = sqrt(1.0 - cb * cb);
 
 		double sa = sin(a);
@@ -68,6 +67,52 @@ namespace model
 		o.C[2][0] = sb * sg;
 		o.C[2][1] = sb * cg;
 		o.C[2][2] = cb;
+
+	}
+
+	void Fragment::OrientateAxis(double cf, Vector a)
+	{
+		/*
+		* Поворот решётки фрагмента вокруг
+		* Заданной оси на заданный угол
+		*/
+		double sf = sqrt(1.0 - cf * cf);
+		double sfx = sf*a.C[0];
+		double sfy = sf*a.C[1];
+		double sfz = sf*a.C[2];
+		double COS = (1.0 - cf);
+
+		o.C[0][0] = cf + COS * a.C[0] * a.C[0];
+		o.C[0][1] = COS * a.C[0] * a.C[1] - sfz;
+		o.C[0][2] = COS * a.C[0] * a.C[2] + sfy;
+
+		o.C[1][0] = COS * a.C[0] * a.C[1] + sfz;
+		o.C[1][1] = cf + COS * a.C[1] * a.C[1];
+		o.C[1][2] = COS * a.C[1] * a.C[2] - sfx;
+
+		o.C[2][0] = COS * a.C[0] * a.C[2] - sfy;
+		o.C[2][1] = COS * a.C[1] * a.C[2] + sfx;
+		o.C[2][2] = cf + COS * a.C[2] * a.C[2];
+
+	}
+
+	void Fragment::OrientateQuater(double w, double x, double y, double z)
+	{
+		/*
+		* Ориентация решётки на основе кватерниона
+		*/
+		
+		o.C[0][0] = 1 - 2 * y*y - 2 * z*z;
+		o.C[0][1] = 2 * x*y - 2 * z*w;
+		o.C[0][2] = 2 * x*z + 2 * y*w;
+
+		o.C[1][0] = 2 * x*y + 2 * z*w;
+		o.C[1][1] = 1 - 2 * x*x - 2 * z*z;
+		o.C[1][2] = 2 * y*z - 2 * x*w;
+
+		o.C[2][0] = 2 * x*z - 2 * y*w;
+		o.C[2][1] = 2 * y*z + 2 * x*w;
+		o.C[2][2] = 1 - 2 * x*x - 2 * y*y;
 
 	}
 
@@ -139,7 +184,7 @@ namespace model
 			{
 				SS[i].tc = TITAN_TC3;
 			}
-			
+
 			P1 = TITAN_P1;
 			P2 = TITAN_P2;
 			P3 = TITAN_P3;
@@ -148,7 +193,7 @@ namespace model
 			P6 = TITAN_P6;
 
 			c = TITAN_C;
-			
+
 			break;
 		}
 		case 3://Аллюминий
@@ -186,16 +231,16 @@ namespace model
 			p.C[2][2][2][2] = P1;
 
 			p.C[0][0][0][0] = p.C[1][1][1][1] = P2;
-			
+
 			p.C[0][0][2][2] = p.C[2][2][0][0] = p.C[1][1][2][2] = p.C[2][2][1][1] = P3;
 
 			p.C[0][0][1][1] = p.C[1][1][0][0] = P4;
-						
+
 			p.C[1][2][1][2] = p.C[2][1][1][2] = p.C[1][2][2][1] = p.C[2][1][2][1] =
 				p.C[2][0][2][0] = p.C[2][0][0][2] = p.C[0][2][0][2] = p.C[0][2][2][0] = P5;
 
 			p.C[0][1][1][0] = p.C[1][0][1][0] = p.C[1][0][0][1] = p.C[0][1][0][1] = P6;
-			
+
 		}
 
 		switch (LATTICE_TYPE)//Идентификация систем скольжения
@@ -432,7 +477,7 @@ namespace model
 			}
 			else
 			{
-				
+
 				for (int i = 0; i < DIM; i++)
 				{
 					for (int j = 0; j < DIM; j++)
@@ -446,17 +491,17 @@ namespace model
 			/************************************************************
 			***********      Соотношение Хатчинсона          ************
 			************************************************************/
-		/*	if (iter % 100 == 0)
-			{
+			/*	if (iter % 100 == 0)
+				{
 				FILE* G_File = fopen("Plot\\TBS.txt", "a+");
 
 				//fprintf(G_File, "%f  \n", (SS[k].t - fabs(SS[k].tbs) - SS[k].tc));
 
 				fclose(G_File);
-			}*/
-		//	SS[k].dgm = prms::dgm0 * pow((SS[k].t -(SS[k].tbs)) / SS[k].tc, prms::m) * H(SS[k].t - (SS[k].tbs) /*- SS[k].tc*/);
+				}*/
+			//	SS[k].dgm = prms::dgm0 * pow((SS[k].t -(SS[k].tbs)) / SS[k].tc, prms::m) * H(SS[k].t - (SS[k].tbs) /*- SS[k].tc*/);
 			SS[k].dgm = prms::dgm0 * pow(SS[k].t / SS[k].tc, prms::m) * H(SS[k].t - SS[k].tc);
-																											
+
 			SS[k].gmm += SS[k].dgm * prms::dt; //Сдвиг по СС
 		}
 		/************************************************************
@@ -491,17 +536,17 @@ namespace model
 			}
 			d_in /= 2.0;
 		}
-		
+
 
 		/************************************************************
 		**********               Закон Гука               ***********
 		************************************************************/
 		//Коротационные производные
-		Tensor R = om*sgm-sgm*om;						//Связанная со спином
+		Tensor R = om*sgm - sgm*om;						//Связанная со спином
 		//Tensor J = w*sgm-sgm*w;						//Яуманна-Нолла
 		//Tensor CR = (w + d)*sgm + sgm*Transp(w + d);	//Коттер-Ривлина
 		//Tensor OL = Transp(w + d)*sgm + sgm*(w + d);	//Олдройда
-		
+
 		dsgm.setZero();
 		for (int i = 0; i < DIM; i++)
 		{
@@ -533,10 +578,10 @@ namespace model
 				sgm.C[i][j] += dsgm.C[i][j] * prms::dt;
 			}
 		}
-		
+
 		strain = e.doubleScalMult(e);
 		stress = sgm.doubleScalMult(sgm);
-	
+
 		strain = SQRT2_3 * sqrt(strain);
 		stress = SQRT3_2 * sqrt(stress);
 	}
@@ -549,7 +594,7 @@ namespace model
 			Vector e;	//Направления [100], [110], [111] в КСК
 			for (int j = 0; j <= i; j++) e.C[j] = 1;
 			e.Normalize();
-		
+
 			Vector e1 = ScalMult(e, o);//Перевод вектора в ЛСК
 			Vector e2 = ScalMult(e, surrounds[h].o);
 			e1.Normalize();

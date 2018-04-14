@@ -53,6 +53,8 @@ namespace model
 		void setParams();			//Распределение параметров фрагментов
 		void Deformate();			//Деформирование поликристалла
 		
+		void Split();
+
 		void BoundsAnalize();
 		void GrainRotate();			//Процедура ротаций на уровне зерен
 		void Fragmentate();			//Процедура фрагментации

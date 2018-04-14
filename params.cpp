@@ -16,6 +16,7 @@ namespace prms
 	bool REAL_UNIAX = false;
 	bool UNLOADING = false;
 	bool RAND_ORIENT = true;
+	int ORIENT_TYPE = 0;
 	int fix_orient = 0;
 	double dt = 5e-4;
 	int material = 0;
@@ -173,7 +174,8 @@ namespace prms
 		getValue(rootnode, "DebugPeriod", &debug_period);
 		getValue(rootnode, "ThreadCount", &thread_count);
 		getValue(rootnode, "FixedOrientations", &fix_orient);
-		
+		getValue(rootnode, "OrientationType", &ORIENT_TYPE);
+
 		/*Градиент скорости*/
 		gradV.setZero();
 		getValue(rootnode, "gradV00", &gradV.C[0][0]);

@@ -19,6 +19,7 @@ namespace prms
 	********************************************************/
 	extern bool SYMMETRY;					//Симметризация диад nb
 	extern bool RAND_ORIENT;				//Случайное распределение начальных ориентаций
+	extern int ORIENT_TYPE;					//Тип задания ориентации
 	extern int fix_orient;					//Считывание ориентаций и нормалей из файлы
 	extern double dt;						//Шаг интегрирования
 	extern int thread_count;				//Кол-во потоков

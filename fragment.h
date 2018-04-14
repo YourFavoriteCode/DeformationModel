@@ -59,7 +59,12 @@ namespace model
 
 		void setMaterialParams(int);	//Задание материальных параметров
 		void Orientate(double, double,
-			double, double);			//Задание начальной ориентации
+			double);			//Задание начальной ориентации по углам Эйлера
+
+		void OrientateAxis(double, Vector);			//Задание начальной ориентации по оси и углу
+
+		void OrientateQuater(double, double,
+			double, double);			//Задание начальной ориентации кватернионом
 		void NDScalc();					//Вычисление НДС фрагмента
 		
 		double DisorientMeasure(int);	//Возвращает меру разориентации с выбранным соседом

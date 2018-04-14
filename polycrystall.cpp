@@ -68,7 +68,7 @@ namespace model
 			DataXStream[0].open("Plot\\macroXint.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
 			DataYStream[0].open("Plot\\macroYint.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
 		}
-	
+
 		if (prms::SaveMacro && prms::Save11)
 		{
 			DataXStream[1].open("Plot\\macroX11.dat", std::ios::out | std::ios_base::trunc | std::ios::binary);
@@ -267,18 +267,72 @@ namespace model
 					C[q1][q2][q3].rot_L = prms::ROT_L;
 					C[q1][q2][q3].position = get1DPos(q1, q2, q3);//Получение порядкового номера фрагмента
 
-					if (prms::RAND_ORIENT)//Получение ориентационного тензора (случайный равномерный закон распределения)
+					if (prms::ORIENT_TYPE == 0)
 					{
-						double a = ((double)rand() / RAND_MAX) * (PI);
-						double g = ((double)rand() / RAND_MAX) * (PI);
-						double y1 = ((double)rand() / RAND_MAX);
-						double y2 = ((double)rand() / RAND_MAX);
-						C[q1][q2][q3].Orientate(a, g, y1, y2);
+						//Углами Эйлера
+						if (prms::RAND_ORIENT)//Получение ориентационного тензора (случайный равномерный закон распределения)
+						{
+							double a = ((double)rand() / RAND_MAX) * (PI);
+							double g = ((double)rand() / RAND_MAX) * (PI);
+							double y1 = ((double)rand() / RAND_MAX);
+							double y2 = ((double)rand() / RAND_MAX);
+							double cb = y1 > 0.5 ? y2 : -y2;
+							C[q1][q2][q3].Orientate(a, g, cb);
+						}
+						else//Получение ориентационного тензора (КСК=ЛСК)
+						{
+							C[q1][q2][q3].o.setUnit();
+						}
 					}
-					else//Получение ориентационного тензора (КСК=ЛСК)
+					else if (prms::ORIENT_TYPE == 1)
 					{
-						C[q1][q2][q3].o.setUnit();
+						//С помощью оси и угла
+						if (prms::RAND_ORIENT)//Получение ориентационного тензора (случайный равномерный закон распределения)
+						{
+							double fi = ((double)rand() / RAND_MAX) * (PI);
+							double psi = ((double)rand() / RAND_MAX) * (PIx2);
+							double y1 = ((double)rand() / RAND_MAX);
+							double y2 = ((double)rand() / RAND_MAX);
+							//Равномерное распределение косинуса угла
+							double cf = y1 > 0.5 ? y2 : -y2;
+							//Переход из сферической в ортогональную СК
+							double x = sin(fi)*cos(psi);
+							double y = sin(fi)*sin(psi);
+							double z = cos(fi);
+							//Запись оси
+							Vector axis;
+							axis.set(x, y, z);
+							axis.Normalize();
+							C[q1][q2][q3].OrientateAxis(cf, axis);
+						}
+						else//Получение ориентационного тензора (КСК=ЛСК)
+						{
+							C[q1][q2][q3].o.setUnit();
+						}
 					}
+					else if (prms::ORIENT_TYPE == 2)
+					{
+						//С помощью кватерниона
+						if (prms::RAND_ORIENT)//Получение ориентационного тензора (случайный равномерный закон распределения)
+						{
+							double fi = ((double)rand() / RAND_MAX) * (PI);
+							double psi = ((double)rand() / RAND_MAX) * (PIx2);
+							//Равномерное распределение косинуса
+							double y1 = ((double)rand() / RAND_MAX);
+							double y2 = ((double)rand() / RAND_MAX);
+							double w = y1 > 0.5 ? y2 : -y2;
+							double buf = sqrt(1.0 - w * w);
+							double x = sin(fi)*cos(psi)*buf;
+							double y = sin(fi)*sin(psi)*buf;
+							double z = cos(fi)*buf;
+							C[q1][q2][q3].OrientateQuater(w, x, y, z);
+						}
+						else//Получение ориентационного тензора (КСК=ЛСК)
+						{
+							C[q1][q2][q3].o.setUnit();
+						}
+					}
+
 					//Задание размеров фрагментов
 					switch (prms::fragm_size_law)
 					{
@@ -304,7 +358,7 @@ namespace model
 					}
 					}
 					C[q1][q2][q3].volume = pow(C[q1][q2][q3].size, 3);	//Объём фрагмента
-					
+
 					//Выделение памяти под массивы, необходимые для работы с окружением
 					C[q1][q2][q3].surrounds = new Fragment[prms::surround_count];
 					C[q1][q2][q3].normals = new Vector[prms::surround_count];
@@ -690,7 +744,7 @@ namespace model
 			D = !unload ? TensionStrainCalc(P, D_in, D.C[0][0]) : UnloadingStrainCalc(P, D_in, Sgm, lam);
 
 			Strain = SQRT2_3*sqrt(E.doubleScalMult(E));//Вычисление интенсивности деформаций
-			
+
 			dSgm = TensionStressCalc(P, D_in, D);
 			//dSgm *= prms::dt;				//Приращение напряжений на шаге
 			Sgm += dSgm*prms::dt;
@@ -715,7 +769,7 @@ namespace model
 			Stress /= total_fragm_count;
 		}
 
-		#pragma omp parallel for
+#pragma omp parallel for
 		//Часть, которую можно паралелить
 		//Здесь необходимо гарантировать защиту данных каждого фрагмента
 		//от перезаписи другими фрагментами
@@ -750,12 +804,12 @@ namespace model
 					{
 						Base_hardening(&C[q1][q2][q3]);
 					}
-				
+
 					if (prms::ROTATIONS_TAYLOR)		//Ротации по Тейлору
 					{
 						Taylor_rotations(&C[q1][q2][q3]);
 					}
-				
+
 					if (prms::ROTATIONS_TRUSOV && prms::ROTATIONS_HARDENING)	//Ротационное упрочнение
 					{
 						Rotation_hardening(&C[q1][q2][q3]);
@@ -848,7 +902,7 @@ namespace model
 			progress = final_stress / fabs(Sgm.C[0][0]) * 100.0;	//Индикация прогресса при разгрузке
 		}
 
-		int period = unload ? proc_period/40 : proc_period;
+		int period = unload ? proc_period / 40 : proc_period;
 
 		if (PROC_STEP == period)
 		{
@@ -856,11 +910,11 @@ namespace model
 			//Курсор двигается на 6 символов влево, записывается новое значение с точностью 5.2 и знак %
 			printf("\b\b\b\b\b\b%0*.*f%%", 5, 2, progress);
 		}
-		
+
 		/************************************************************
 		***********	    Запись данных для графиков НДС    ***********
 		************************************************************/
-		
+
 		if ((progress - PLOT_STEP > prms::plot_period || unload) && prms::plot_period > 0)
 		{
 			BoundsAnalize();		//Подсчет доли большеугловых границ
@@ -927,7 +981,7 @@ namespace model
 					{
 						for (int q3 = 0; q3 < fragm_count; q3++)
 						{
-							
+
 							if (prms::SaveIntense)
 							{
 								DataXStream[10].write((char *)&C[q1][q2][q3].strain, sizeof(double));
@@ -983,7 +1037,7 @@ namespace model
 					}
 				}
 			}
-		
+
 			double ActiveSysCount = 0;			//Среднее кол-во активных систем скольжения на шаге
 			double RotEnergy = 0;				//Энергия ротаций на шаге
 			double RotSpeed = 0;				//Средняя скорость вращения на шаге
@@ -1076,8 +1130,8 @@ namespace model
 
 	void Polycrystall::Deformate()
 		/****************************************
-		*Функция деформирования представительного 
-		*объема поликристала. 
+		*Функция деформирования представительного
+		*объема поликристала.
 		*****************************************/
 	{
 		omp_set_num_threads(prms::thread_count);	//Кол-во используемых потоков
@@ -1086,9 +1140,9 @@ namespace model
 		{
 			/***************************************************
 			*Выбор растягивающей компоненты тензора D.
-			*Относительно неё на каждом шаге будет решаться СЛАУ 
+			*Относительно неё на каждом шаге будет решаться СЛАУ
 			***************************************************/
-			tension_component = D.C[0][0];			
+			tension_component = D.C[0][0];
 		}
 		for (cycle = 0; cycle < prms::cycle_count; cycle++)
 		{
@@ -1107,7 +1161,7 @@ namespace model
 			counter = !prms::REAL_UNIAX ? &Strain : &E.C[0][0];
 			//Для циклических нагружений цикл ведется по значению растягивающей компоненты
 			//а для остальных - по значению интенсивности тензора деформации
-			
+
 			while (fabs(*counter) < prms::strain_max)	//Цикл по деформациям
 			{
 				Load(false);
@@ -1118,19 +1172,19 @@ namespace model
 				t2 = clock();		//Конечная отсечка времени
 				printf("\b\b\b\b\b\bDone in %g sec", (t2 - t1) / 1000.0);
 			}
-				printf("\n START 2! \n");
-			D.set(0, 0.003, 0, 0.003, 0, 0, 0, 0, 0);//Простой сдвиг
-		//	W.setZero();
-		//	D.set(-0.003, 0.003, 0, -0.003, 0.003, 0, 0, 0, 0);//РКУП
-			D.set(0.003, 0, 0, 0, -0.0015, 0, 0, 0, -0.0015);//Одноосье
-			prms::strain_max += prms::strain_max;
-			
-			while (fabs(*counter) < prms::strain_max)
-			{
+			//		printf("\n START 2! \n");
+			//	D.set(0, 0.003, 0, 0.003, 0, 0, 0, 0, 0);//Простой сдвиг
+			//	W.setZero();
+			//	D.set(-0.003, 0.003, 0, -0.003, 0.003, 0, 0, 0, 0);//РКУП
+			/*	D.set(0.003, 0, 0, 0, -0.0015, 0, 0, 0, -0.0015);//Одноосье
+				prms::strain_max += prms::strain_max;
+
+				while (fabs(*counter) < prms::strain_max)
+				{
 				Load(false);
-			}
-			
-	
+				}
+				*/
+
 			if (prms::UNLOADING)	//Упругая разгрузка
 			{
 				printf("\n Unloading #%d", cycle + 1);
@@ -1138,20 +1192,20 @@ namespace model
 				t1 = clock();		//Начальная отсечка времени
 				while (fabs(Sgm.C[0][0]) > final_stress) //Цикл по напряжениям
 				{
-					 Load(true);
+					Load(true);
 				}
 				t2 = clock();		//Конечная отсечка времени
 				printf("\b\b\b\b\b\bDone in %g sec", (t2 - t1) / 1000.0);
 			}
-		
+
 			if (prms::cycle_count > 1)	//Цикоическое знакопеременное нагружение
 			{
 				D.C[0][0] = pow(-1, cycle + 1) * tension_component;	//Меняем знак растягивающей компоненты
 				prms::strain_max += prms::strain_max * addition_strain;	//Повышаем предел интенсивности
 			}
-			
+
 			if (prms::FRAGMENTATION) Fragmentate();
-		
+
 		}
 	}
 }
